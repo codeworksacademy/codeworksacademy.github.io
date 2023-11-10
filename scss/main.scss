@@ -1,0 +1,54 @@
+@import "../../node_modules/bootstrap/scss/functions"; // Required
+@import "../../node_modules/bootstrap/scss/variables"; // Required
+@import "../../node_modules/bootstrap/scss/mixins"; // Required
+
+@import "./_variables.scss";
+
+@import "../../node_modules/bootstrap/scss/bootstrap";
+@import "./_overrides.scss";
+@import "./_utilities.scss";
+@import "./loaders.scss";
+
+body {
+  overscroll-behavior: none;
+  font-size: 16px;
+  font-family: 'Inter';
+}
+
+h1,h2,h3,h4,h5,h6{
+  font-family: 'Roboto Mono';
+}
+
+#app {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  background-color: var(--bs-body-bg);
+}
+
+main {
+  flex-grow: 1;
+}
+
+a {
+  text-decoration: none;
+}
+
+input,
+textarea,
+select {
+  &:not(:placeholder-shown) {
+    &:valid {
+      border: 1px solid #00ffbb46;
+    }
+
+    &:invalid {
+      border: 1px dotted $danger;
+    }
+  }
+}
+
+form:invalid button[type="submit"] {
+  filter: grayscale(1);
+  pointer-events: none;
+}

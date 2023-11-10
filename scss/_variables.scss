@@ -1,0 +1,797 @@
+$theme-colors: (
+  "primary": #00ccff,
+  "secondary": #8392ab,
+  "success": #67fab3,
+  "info": #00f867,
+  "warning": #fde797,
+  "danger": #ea0606,
+  "light": #e9ecef,
+  "dark": #181515,
+  "d-elevated": #384963,
+  "grey": #cbcbcb,
+  "page-bg": #f0f8ff
+);
+
+// Create your own map
+$extra-colors: (
+  "blue": $blue,
+  "indigo": $indigo,
+  "purple": $purple,
+  "pink": $pink,
+  "red": $red,
+  "orange": $orange,
+  "yellow": $yellow,
+  "green": $green,
+  "teal": $teal,
+  "cyan": $cyan,
+  "black": $black,
+  "white": $white,
+  "gray": $gray-600,
+  "gray-dark": $gray-800
+);
+
+$blue: #0d6efd !default;
+$indigo: #6610f2 !default;
+$purple: #6f42c1 !default;
+$pink: #d63384 !default;
+$red: #dc3545 !default;
+$orange: #fd7e14 !default;
+$yellow: #ffc107 !default;
+$green: #198754 !default;
+$teal: #20c997 !default;
+$cyan: #0dcaf0 !default;
+
+// Merge the maps
+// $theme-colors: map-merge($theme-colors, $extra-colors);
+@import url("https://fonts.googleapis.com/css2?family=Inter:wght@200;300;400;500;600;700;900&family=Roboto+Mono:wght@200;300;400;500;600;700&display=swap");
+
+$font-sans-serif: "Inter", sans-serif;
+$font-monospace: "Roboto Mono", "Liberation Mono", "Courier New", monospace;
+$gradient: linear-gradient(180deg, hsla(0, 0%, 100%, 0.15), hsla(0, 0%, 100%, 0));
+
+$border-radius: 0.5rem;
+
+$themeProperties: (
+  main: "main",
+  accent: "accent",
+  emphasis: "emphasis",
+  inform: "inform",
+  warn: "warn",
+  hazard: "hazard",
+  page: "page",
+  dark: "dark",
+  light: "light",
+  blue: "blue",
+  indigo: "indigo",
+  purple: "purple",
+  pink: "pink",
+  red: "red",
+  orange: "orange",
+  yellow: "yellow",
+  green: "green",
+  teal: "teal",
+  cyan: "cyan"
+);
+$opacities: (
+  0: 0,
+  10: 0.1,
+  20: 0.2,
+  25: 0.25,
+  30: 0.3,
+  40: 0.4,
+  50: 0.5,
+  60: 0.6,
+  70: 0.7,
+  75: 0.75,
+  80: 0.8,
+  90: 0.9
+);
+
+$elevations: (
+  0: 1,
+  1: 2,
+  2: 3,
+  3: 5,
+  4: 8,
+  5: 13,
+  6: 21
+);
+
+$themes: (
+  universal: (
+    light: #e9ecef,
+    dark: #181515,
+    blue: #0d6efd,
+    indigo: #6610f2,
+    purple: #6f42c1,
+    pink: #d63384,
+    red: #dc3545,
+    orange: #fd7e14,
+    yellow: #ffc107,
+    green: #198754,
+    teal: #20c997,
+    cyan: #0dcaf0
+  ),
+  light: (
+    main: #066ac9,
+    accent: #071e3b,
+    emphasis: #0cbc87,
+    inform: #17a2b8,
+    warn: #f7c32e,
+    hazard: #d6293e,
+    page: #fff
+  ),
+  dark: (
+    main: #3edcff,
+    accent: #2fff9a,
+    emphasis: #aa49f9,
+    inform: #01efb6,
+    warn: #ffda6a,
+    hazard: #ea868f,
+    page: #222529
+  )
+);
+
+$theme-map: ();
+
+@function _($key) {
+  $uni-color: map-get(map-get($themes, "universal"), $key);
+
+  @if (type-of($uni-color) ==color) {
+    @return $uni-color;
+  }
+
+  $map: map-get($theme-map, $key);
+  @return $map;
+}
+
+@mixin themed() {
+  @each $theme, $map in $themes {
+    $target: '[data-bs-theme="#{$theme}"]';
+    $theme-map: () !global;
+
+    @if ($theme == "universal") {
+      $target: "body";
+    }
+
+    #{$target} {
+      @each $key, $submap in $map {
+        $value: map-get(map-get($themes, $theme), $key);
+        $theme-map: map-merge(
+          $theme-map,
+          (
+            $key: $value
+          )
+        ) !global;
+      }
+
+      @content;
+      $theme-map: null !global;
+    }
+  }
+}
+
+[class*=" hover-"] {
+  transition: all 0.25s ease;
+}
+
+@mixin hoverable($class, $time: 0.25s) {
+  .hover-#{$class} {
+    &:hover {
+      @extend .#{$class};
+      transition: all ($time / 2) ease;
+    }
+  }
+}
+
+// ANCHOR themed
+// #region
+@include themed() {
+  @each $prop, $val in $themeProperties {
+    $colour: _($prop);
+
+    @if (type-of($colour) ==color) {
+      // *******color
+      // STUB color mix
+
+      @each $prop, $val2 in $themeProperties {
+        $colour2: _($val2);
+
+        // ###### color-mix
+        // SECTION Text
+        .text-#{$val}-to-#{$prop} {
+          background: linear-gradient(90deg, $colour, $colour2);
+          color: transparent;
+          -webkit-background-clip: text;
+          background-clip: text;
+        }
+
+        // SECTION backgrounds
+        .bg-#{$val}-to-#{$prop} {
+          background: linear-gradient(90deg, $colour, $colour2);
+          color: color-contrast($colour);
+        }
+
+        .bg-#{$val}-to-#{$prop}-up {
+          background: linear-gradient(0deg, $colour, $colour2);
+          color: color-contrast($colour);
+        }
+
+        @include hoverable(bg-#{$val}-to-#{$prop});
+        @include hoverable(bg-#{$val}-to-#{$prop}-up);
+
+        // ######
+      }
+
+      // STUB opacities
+
+      @each $power, $num in $opacities {
+        $rotate: 75deg;
+        // ~~~~~~ opacities 10-100
+
+        // SECTION Text
+        .text-#{$val}.dodge-#{$power} {
+          color: tint-color(adjust-hue($colour, $num * $rotate), $num * 105%) !important;
+        }
+
+        .text-#{$val}.burn-#{$power} {
+          color: shade-color(adjust-hue($colour, $num * -$rotate), $num * 105%) !important;
+        }
+
+        .text-#{$val}.lighten-#{$power} {
+          color: tint-color($colour, $num * 105%) !important;
+        }
+
+        .text-#{$val}.darken-#{$power} {
+          color: shade-color($colour, $num * 105%) !important;
+        }
+
+        @include hoverable(dodge-#{$power});
+        @include hoverable(burn-#{$power});
+        @include hoverable(lighten-#{$power});
+        @include hoverable(darken-#{$power});
+
+        // SECTION borders
+        .border-#{$val}.border-opacity-#{$power} {
+          border-color: transparentize($colour, 1-$num) !important;
+        }
+
+        @include hoverable(border-opacity-#{$power});
+
+        // SECTION backgrounds
+        .bg-#{$val}-#{$power} {
+          color: color-contrast($colour);
+          background-color: transparentize($colour, 1-$num);
+        }
+
+        @include hoverable(bg-#{$val}-#{$power});
+
+        $rotate: 75deg;
+
+        .bg-#{$val}-dodge-#{$power} {
+          background: tint-color(adjust-hue($colour, $num * $rotate), $num * 105%);
+          color: color-contrast($colour);
+        }
+
+        .bg-#{$val}-burn-#{$power} {
+          background: shade-color(adjust-hue($colour, $num * -$rotate), $num * 105%);
+          color: color-contrast($colour);
+        }
+
+        .bg-#{$val}-lighten-#{$power} {
+          background: tint-color($colour, $num * 105%);
+          color: color-contrast($colour);
+        }
+
+        .bg-#{$val}-darken-#{$power} {
+          background: shade-color($colour, $num * 105%);
+          color: color-contrast($colour);
+        }
+
+        @include hoverable(bg-#{$val}-dodge-#{$power});
+        @include hoverable(bg-#{$val}-burn-#{$power});
+        @include hoverable(bg-#{$val}-lighten-#{$power});
+        @include hoverable(bg-#{$val}-darken-#{$power});
+        // ~~~~~~
+      }
+
+      // STUB heights
+
+      @each $height, $pow in $elevations {
+        // ^^^^^^ heights
+
+        // SECTION backgrounds
+        $rotate: 4deg;
+        $dist: 13%;
+
+        .bg-#{$val}.lift-#{$height} {
+          background: tint-color(adjust-hue($colour, $height * -$rotate), $height * $dist);
+          color: color-contrast($colour) !important;
+        }
+
+        .bg-#{$val}.drop-#{$height} {
+          background: shade-color(adjust-hue($colour, $height * -$rotate), $height * $dist);
+          color: color-contrast($colour) !important;
+        }
+
+        @include hoverable(lift-#{$height});
+        @include hoverable(drop-#{$height});
+
+        // SECTION Shadows and glows
+        .bg-#{$val}.glow,
+        .btn-#{val}.glow {
+          box-shadow: 0px 2px 8px transparentize($colour, 0.4);
+        }
+
+        .bg-#{$val}.glow-#{$height},
+        .btn-#{val}.glow-#{$height} {
+          box-shadow: 0px ($height * 1px) ($pow * 4px) transparentize($colour, 0.4);
+        }
+
+        .glow-#{$val}-#{$height} {
+          box-shadow: 0px ($height * 1px) ($pow * 4px) transparentize($colour, 0.4);
+        }
+
+        .elevation-#{$val}-#{$height} {
+          box-shadow: 0px
+            ($height * 1px)
+            (calc($pow/2) * 2px)
+            transparentize(shade-color(adjust-hue($colour, 6deg), 60%), 0.4);
+        }
+
+        @include hoverable(glow-#{$height});
+        @include hoverable(glow-#{$val}-#{$height});
+        @include hoverable(elevation-#{$val}-#{$height});
+
+        // ^^^^^^
+      }
+
+      // STUB bare colors
+      // SECTION clickable things
+
+      .btn-#{$val} {
+        border: 1px solid $colour;
+        background-color: transparentize($colour, 0.75);
+        color: mix(color-contrast($colour), $colour, $weight: 5);
+
+        &:hover {
+          background-color: transparentize($colour, 0.75);
+          color: mix(color-contrast($colour), $colour, $weight: 5);
+        }
+      }
+
+      .btn-outline-#{$val} {
+        border: 1px solid $colour;
+        background: transparent;
+        color: $colour;
+
+        &:hover {
+          background-color: transparentize($colour, 0.75);
+          color: mix(color-contrast($colour), $colour, $weight: 5);
+        }
+      }
+
+      .btn-#{$val}-strong {
+        border: 0px;
+        background: $colour;
+        color: color-contrast($colour);
+
+        &:hover {
+          background: tint-color(adjust-hue($colour, 4deg), 40%);
+          color: color-contrast($colour);
+        }
+      }
+
+      .btn-#{$val}-hidden {
+        color: $colour;
+        background-color: transparent;
+        cursor: pointer;
+        transition: background-color 0.2s ease;
+
+        &:hover {
+          border: 1px solid $colour;
+          background-color: transparentize($colour, 0.75);
+          color: mix(color-contrast($colour), $colour, $weight: 5);
+        }
+      }
+
+      .clickable-#{$val} {
+        color: $colour;
+        background-color: transparent;
+        cursor: pointer;
+        transition: background-color 0.2s ease;
+
+        &:hover {
+          background-color: transparentize($colour, 0.75);
+          color: mix(color-contrast($colour), $colour, $weight: 5);
+        }
+      }
+
+      // SECTION Text
+
+      .text-#{$val} {
+        color: $colour !important;
+      }
+
+      @include hoverable(text-#{$val});
+
+      // SECTION borders
+
+      .border-#{$val} {
+        border-width: 1px;
+        border-style: solid;
+        border-color: $colour !important;
+      }
+
+      @include hoverable(border-#{$val});
+
+      //  SECTION backgrounds
+
+      .bg-#{$val} {
+        background-color: $colour;
+        color: color-contrast($colour);
+      }
+
+      @include hoverable(bg-#{$val});
+
+      .bg-#{$val}-right-0 {
+        background: linear-gradient(90deg, $colour, transparent);
+        color: color-contrast($colour);
+      }
+
+      .bg-#{$val}-left-0 {
+        background: linear-gradient(270deg, $colour, transparent);
+        color: color-contrast($colour);
+      }
+
+      .bg-#{$val}-up-0 {
+        background: linear-gradient(0deg, $colour, transparent);
+        color: color-contrast($colour);
+      }
+
+      .bg-#{$val}-down-0 {
+        background: linear-gradient(180deg, $colour, transparent);
+        color: color-contrast($colour);
+      }
+
+      .bg-#{$val}-right-25 {
+        background: linear-gradient(90deg, $colour, transparentize($colour, 0.75));
+        color: color-contrast($colour);
+      }
+
+      .bg-#{$val}-left-25 {
+        background: linear-gradient(270deg, $colour, transparentize($colour, 0.75));
+        color: color-contrast($colour);
+      }
+
+      .bg-#{$val}-up-25 {
+        background: linear-gradient(0deg, $colour, transparentize($colour, 0.75));
+        color: color-contrast($colour);
+      }
+
+      .bg-#{$val}-down-25 {
+        background: linear-gradient(180deg, $colour, transparentize($colour, 0.75));
+        color: color-contrast($colour);
+      }
+
+      .bg-#{$val}-right-50 {
+        background: linear-gradient(90deg, $colour, transparentize($colour, 0.5));
+        color: color-contrast($colour);
+      }
+
+      .bg-#{$val}-left-50 {
+        background: linear-gradient(270deg, $colour, transparentize($colour, 0.5));
+        color: color-contrast($colour);
+      }
+
+      .bg-#{$val}-up-50 {
+        background: linear-gradient(0deg, $colour, transparentize($colour, 0.5));
+        color: color-contrast($colour);
+      }
+
+      .bg-#{$val}-down-50 {
+        background: linear-gradient(180deg, $colour, transparentize($colour, 0.5));
+        color: color-contrast($colour);
+      }
+
+      .bg-#{$val}-right-75 {
+        background: linear-gradient(90deg, $colour, transparentize($colour, 0.25));
+        color: color-contrast($colour);
+      }
+
+      .bg-#{$val}-left-75 {
+        background: linear-gradient(270deg, $colour, transparentize($colour, 0.25));
+        color: color-contrast($colour);
+      }
+
+      .bg-#{$val}-up-75 {
+        background: linear-gradient(0deg, $colour, transparentize($colour, 0.25));
+        color: color-contrast($colour);
+      }
+
+      .bg-#{$val}-down-75 {
+        background: linear-gradient(180deg, $colour, transparentize($colour, 0.25));
+        color: color-contrast($colour);
+      }
+
+      // SECTION forms
+      .input-#{$val} {
+        accent-color: $colour !important;
+      }
+
+      // *******
+    }
+  }
+}
+
+// #endregion
+
+// ANCHOR only heights
+@each $height, $pow in $elevations {
+  // SECTION shadows
+  .elevation-#{$height} {
+    box-shadow: 0px ($height * 1px) (calc($pow/3) * 4px) transparentize(#16161d, 0.4);
+  }
+
+  @include hoverable(elevation-#{$height});
+
+  // SECTION transitions
+  $scale: 1 + calc(($pow * 1.25) / 100);
+
+  .scale-up {
+    transform: scale(1.1);
+  }
+
+  .scale-down {
+    transform: scale(0.9);
+  }
+
+  .scale-up-#{$height} {
+    @if$height ==0 {
+      transform: scale(1);
+    } @else {
+      transform: scale(#{$scale});
+    }
+  }
+
+  .scale-down-#{$height} {
+    @if $height ==0 {
+      transform: scale(1);
+    } @else {
+      transform: scale(#{(0.95- ($scale - 1))});
+    }
+  }
+
+  .move-up {
+    transform: translateY(-5px);
+  }
+
+  .move-down {
+    transform: translateY(5px);
+  }
+
+  .move-up-#{$height} {
+    transform: translateY(#{($pow - 1) * -2px});
+  }
+
+  .move-down-#{$height} {
+    transform: translateY(#{($pow - 1) * 2px});
+  }
+
+  @include hoverable(scale-up);
+  @include hoverable(scale-down);
+  @include hoverable(scale-up-#{$height});
+  @include hoverable(scale-down-#{$height});
+  @include hoverable(move-up);
+  @include hoverable(move-down);
+  @include hoverable(move-up-#{$height});
+  @include hoverable(move-down-#{$height});
+}
+
+// ANCHOR just Opacities
+@each $power, $num in $opacities {
+  // ~~~~~~ opacities 10-100
+  .opacity-#{$power} {
+    opacity: calc($num/100);
+  }
+
+  @include hoverable(opacity-#{$power}) // ~~~~~~
+;
+}
+
+// @each $prop,
+// $val in $themeProperties {
+//   @include themed() {
+//     $colour: _($val);
+
+//     // -------
+//     .input-#{$val} {
+//       accent-color: $colour !important;
+//     }
+
+//     // -------
+//   }
+// }
+// #endregion
+
+// ANCHOR un-themed
+.element-stack {
+  display: grid;
+  grid-template-rows: 1fr;
+  grid-template-columns: 1fr;
+
+  & > * {
+    grid-row: 1 / span 1;
+    grid-column: 1 / span 1;
+  }
+
+  & > .bottom {
+    align-self: end;
+  }
+
+  & > .left {
+    justify-self: start;
+  }
+
+  & > .right {
+    justify-self: end;
+  }
+
+  & > .center {
+    justify-self: center;
+  }
+
+  & > .middle {
+    align-self: center;
+  }
+}
+
+.opacify {
+  opacity: 1 !important;
+  transition: opacity 0.25s ease;
+}
+
+@include hoverable(opacify);
+
+.t-fast,
+i.t-fast::before {
+  transition-duration: 0.1s !important;
+  animation-duration: 0.1s !important;
+}
+
+.t-slow,
+i.t-slow::before {
+  transition-duration: 0.65s !important;
+  animation-duration: 0.65s !important;
+}
+
+.t-ease,
+i.t-ease::before {
+  transition-timing-function: ease !important;
+  animation-timing-function: cubic-bezier(0.175, 0.885, 0.32, 1.275) !important;
+}
+
+.t-linear,
+i.t-linear::before {
+  transition-timing-function: linear !important;
+  animation-timing-function: linear !important;
+}
+
+.t-overshoot,
+i.t-overshoot::before {
+  transition-timing-function: cubic-bezier(0.47, 0.1, 0.6, 1.48) !important;
+  animation-timing-function: cubic-bezier(0.47, 0.1, 0.6, 1.48) !important;
+}
+
+.bouncing,
+i.bouncing::before {
+  animation: bouncing 1s ease infinite;
+}
+
+.bounce-once,
+i.bounce-once::before {
+  animation: bouncing 1s ease forwards;
+}
+
+@include hoverable(bouncing);
+@include hoverable(bounce-once);
+@include hoverable(t-fast);
+@include hoverable(t-slow);
+
+$bounce-height: 8px;
+
+@keyframes bouncing {
+  0% {
+    transform: translateY(0px);
+  }
+
+  10% {
+    transform: translateY(-$bounce-height);
+  }
+
+  20% {
+    transform: translateY(0px);
+  }
+
+  30% {
+    transform: translateY(calc(-1 * $bounce-height / 2));
+  }
+
+  40% {
+    transform: translateY(0px);
+  }
+
+  100% {
+    transform: translateY(0px);
+  }
+}
+
+.fade-down {
+  // display: none;
+  opacity: 0;
+  animation: fade-down 0.2s ease forwards;
+}
+
+@keyframes fade-down {
+  0% {
+    display: none;
+  }
+
+  1% {
+    display: block;
+    opacity: 0;
+    transform: translateY(-20px);
+  }
+
+  100% {
+    // display: block;
+    opacity: 1;
+    transform: translateY(0px);
+  }
+}
+
+.fade-up {
+  // display: none;
+  opacity: 0;
+  animation: fade-up 0.2s ease forwards;
+}
+
+@keyframes fade-up {
+  0% {
+    display: none;
+  }
+
+  1% {
+    display: block;
+    opacity: 0;
+    transform: translateY(20px);
+  }
+
+  100% {
+    display: block;
+    opacity: 1;
+    transform: translateY(0px);
+  }
+}
+
+.zoom-in {
+  // display: none;
+  animation: zoom-in 0.25s ease forwards;
+  transform: scale(0);
+}
+
+@keyframes zoom-in {
+  0% {
+    display: none;
+  }
+
+  1% {
+    display: block;
+    transform: scale(0);
+  }
+
+  100% {
+    display: block;
+    transform: scale(1);
+  }
+}
