@@ -1,0 +1,1 @@
+import{W as s,A as e}from"./index-fd56c3bb.js";class n{async getMyStudents(){const t=await s.get("api/enrollments");e.myStudents=t.data}async getStudentsByCourseId(t){const a=await s.get("api/enrollments",{params:{courseId:t}});e.myStudents=a.data}}const c=new n;export{c as i};
