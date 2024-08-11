@@ -6,8 +6,8 @@ $theme-colors: (
   "warning": #fde797,
   "danger": #ea0606,
   "light": #e9ecef,
-  "dark": #181515,
-  "d-elevated": #384963,
+  "dark": #090522,
+  "d-elevated": #3b3863,
   "grey": #cbcbcb,
   "page-bg": #f0f8ff
 );
@@ -128,7 +128,8 @@ $themes: (
     inform: #01efb6,
     warn: #ffda6a,
     hazard: #ea868f,
-    page: #222529
+    page: #070929,
+    dark: #020314
   )
 );
 
@@ -179,7 +180,7 @@ $theme-map: ();
   .hover-#{$class} {
     &:hover {
       @extend .#{$class};
-      transition: all ($time / 2) ease;
+      transition: all calc($time / 2) ease;
     }
   }
 }
@@ -301,16 +302,16 @@ $theme-map: ();
         // ^^^^^^ heights
 
         // SECTION backgrounds
-        $rotate: 4deg;
-        $dist: 13%;
+        $rotate: 6deg;
+        $dist: 6%;
 
         .bg-#{$val}.lift-#{$height} {
-          background: tint-color(adjust-hue($colour, $height * -$rotate), $height * $dist);
+          background: tint-color(adjust-hue($colour, $height * $rotate), $height * $dist);
           color: color-contrast($colour) !important;
         }
 
         .bg-#{$val}.drop-#{$height} {
-          background: shade-color(adjust-hue($colour, $height * -$rotate), $height * $dist);
+          background: shade-color(adjust-hue($colour, $height * -$rotate), $height * $dist * 2);
           color: color-contrast($colour) !important;
         }
 
@@ -352,11 +353,11 @@ $theme-map: ();
       .btn-#{$val} {
         border: 1px solid $colour;
         background-color: transparentize($colour, 0.75);
-        color: mix(color-contrast($colour), $colour, $weight: 5);
+        color: mix(color-contrast($colour), $colour, $weight: 50%);
 
         &:hover {
           background-color: transparentize($colour, 0.75);
-          color: mix(color-contrast($colour), $colour, $weight: 5);
+          color: mix(color-contrast($colour), $colour, $weight: 50%);
         }
       }
 
@@ -367,7 +368,7 @@ $theme-map: ();
 
         &:hover {
           background-color: transparentize($colour, 0.75);
-          color: mix(color-contrast($colour), $colour, $weight: 5);
+          color: mix(color-contrast($colour), $colour, $weight: 50%);
         }
       }
 
@@ -391,7 +392,7 @@ $theme-map: ();
         &:hover {
           border: 1px solid $colour;
           background-color: transparentize($colour, 0.75);
-          color: mix(color-contrast($colour), $colour, $weight: 5);
+          color: mix(color-contrast($colour), $colour, $weight: 50%);
         }
       }
 
@@ -402,8 +403,8 @@ $theme-map: ();
         transition: background-color 0.2s ease;
 
         &:hover {
-          background-color: transparentize($colour, 0.75);
-          color: mix(color-contrast($colour), $colour, $weight: 5);
+          background-color: darken($colour, 0.75);
+          color: mix(color-contrast($colour), $colour, $weight: 50%);
         }
       }
 

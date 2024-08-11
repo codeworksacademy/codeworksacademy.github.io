@@ -37,6 +37,7 @@ a {
 input,
 textarea,
 select {
+  background-color: #050c1f;
   &:not(:placeholder-shown) {
     &:valid {
       border: 1px solid #00ffbb46;
