@@ -1,0 +1,1 @@
+import{_ as e,a as t,o,d as s}from"./index-85e8c21a.js";const n={setup(){return{}}},c={class:"component"},a=s("h1",null,"ReturnPage",-1),r=[a];function _(d,p,u,i,l,f){return o(),t("div",c,r)}const m=e(n,[["render",_]]);export{m as default};
