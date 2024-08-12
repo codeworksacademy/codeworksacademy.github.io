@@ -1,1 +1,0 @@
-import{_ as a,r as e,a as s,b as t,o as r}from"./index-b9f9cde0.js";const c={class:"auth-guard"},n={__name:"AuthPage",setup(p){return(u,d)=>{const o=e("router-view"),_=e("NoteCreator");return r(),s("div",c,[t(o),t(_)])}}},m=a(n,[["__scopeId","data-v-4bbd8368"]]);export{m as default};
