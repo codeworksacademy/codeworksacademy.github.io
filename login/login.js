@@ -100,6 +100,10 @@ function setCookie(name, value, days) {
   document.cookie = `${name}=${value}; expires=${expires.toUTCString()}; path=/; domain=.${domain}; Secure; SameSite=None`;
 }
 
+function deleteCookie(name) {
+  setCookie(name, '', -1);
+}
+
 async function handleRedirect() {
   if (!checkCookies()) {
     showCookiesDisabledMessage();
