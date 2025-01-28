@@ -1,8 +1,10 @@
 const audience = 'https://codeworksacademy.com';
 const AUTH0_DOMAIN = 'codeworksacademy.auth0.com';
 const CLIENT_ID = 'Pr738Hn5ZZhYYahOhTukx3phzlIPGCfl';
-const REDIRECT_URI = 'https://codeworksacademy.com/login';
-const LOGOUT_REDIRECT = 'https://codeworksacademy.com';
+const IS_DEV = window.location.hostname === 'localhost';
+const REDIRECT_URI = IS_DEV ? location.href : 'https://codeworksacademy.com/login';
+const LOGOUT_REDIRECT = IS_DEV ? location.origin : 'https://codeworksacademy.com';
+const domain = IS_DEV ? window.location.hostname : 'codeworksacademy.com';
 const FROM_KEY = 'from';
 
 function checkCookies() {
@@ -29,8 +31,8 @@ function logoutUser() {
   localStorage.removeItem(FROM_KEY);
   localStorage.removeItem('code_verifier');
 
-  document.cookie = `auth0.${CLIENT_ID}.is.authenticated=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;`;
-  document.cookie = `auth0.${CLIENT_ID}.access_token=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;`;
+  deleteCookie(`auth0.${CLIENT_ID}.access_token`);
+  deleteCookie(`auth0.${CLIENT_ID}.is.authenticated`);
 
   const logoutUrl = new URL(`https://${AUTH0_DOMAIN}/v2/logout`);
   logoutUrl.searchParams.set('client_id', CLIENT_ID);
@@ -85,9 +87,18 @@ async function exchangeCodeForToken(authCode) {
   }
 
   const data = await response.json();
+
+  setCookie(`auth0.${CLIENT_ID}.access_token`, data.access_token, data.expires_in);
+  setCookie(`auth0.${CLIENT_ID}.is.authenticated`, 'true', data.expires_in);
+
   return data;
 }
 
+function setCookie(name, value, days) {
+  const expires = new Date();
+  expires.setTime(expires.getTime() + days * 24 * 60 * 60 * 1000);
+  document.cookie = `${name}=${value}; expires=${expires.toUTCString()}; path=/; domain=.${domain}; Secure; SameSite=None`;
+}
 
 async function handleRedirect() {
   if (!checkCookies()) {
@@ -116,7 +127,7 @@ async function handleRedirect() {
       const storedFrom = localStorage.getItem(FROM_KEY);
       if (storedFrom) {
         localStorage.removeItem(FROM_KEY);
-        window.location.href = `https://course.codeworksacademy.com/${storedFrom}`;
+        window.location.href = storedFrom.startsWith('http') ? storedFrom : `https://course.codeworksacademy.com/${storedFrom}`;
       } else {
         window.location.href = '/';
       }
@@ -126,8 +137,8 @@ async function handleRedirect() {
     }
     return;
   }
-
-  window.location.href = '/';
+  console.error('Invalid redirect');
+  redirectToAuth0();
 }
 
 // Utility functions

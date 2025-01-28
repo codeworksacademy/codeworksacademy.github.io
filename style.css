@@ -13,6 +13,10 @@
   --brand: #a8b1ff;
 }
 
+#logout {
+  display: none;
+}
+
 img {
   max-width: 100%;
 }
@@ -54,19 +58,11 @@ nav {
   padding: 1em;
 }
 
-a.login {
+a.login,
+a.logout {
   font-weight: 700;
   letter-spacing: 1.5px;
   text-transform: uppercase;
-}
-
-
-.t-gradient .t-1 {
-  background-image: var(--success-gradient);
-}
-
-.t-gradient .t-2 {
-  background-image: var(--warning-gradient);
 }
 
 .t-gradient {
@@ -74,6 +70,17 @@ a.login {
   background-image: var(--info-gradient);
   color: transparent;
 }
+
+.t-gradient .t-1,
+.t-2 {
+  background-image: var(--success-gradient);
+}
+
+.t-gradient .t-2,
+.t-2 {
+  background-image: var(--warning-gradient);
+}
+
 
 .hero {
   padding: 10px clamp(10px, 50px, 2vw);
