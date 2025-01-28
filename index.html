@@ -2,58 +2,293 @@
 <html lang="en">
 
 <head>
-  <script>self["MonacoEnvironment"] = (function (paths) {
-          return {
-            globalAPI: false,
-            getWorkerUrl : function (moduleId, label) {
-              var result =  paths[label];
-              if (/^((http:)|(https:)|(file:)|(\/\/))/.test(result)) {
-                var currentUrl = String(window.location);
-                var currentOrigin = currentUrl.substr(0, currentUrl.length - window.location.hash.length - window.location.search.length - window.location.pathname.length);
-                if (result.substring(0, currentOrigin.length) !== currentOrigin) {
-                  var js = '/*' + label + '*/importScripts("' + result + '");';
-                  var blob = new Blob([js], { type: 'application/javascript' });
-                  return URL.createObjectURL(blob);
-                }
-              }
-              return result;
-            }
-          };
-        })({
-  "editorWorkerService": "/monacoeditorwork/editor.worker.bundle.js",
-  "json": "/monacoeditorwork/json.worker.bundle.js",
-  "html": "/monacoeditorwork/html.worker.bundle.js",
-  "typescript": "/monacoeditorwork/ts.worker.bundle.js",
-  "css": "/monacoeditorwork/css.worker.bundle.js",
-  "javascript": "/monacoeditorwork/ts.worker.bundle.js",
-  "less": "/monacoeditorwork/css.worker.bundle.js",
-  "scss": "/monacoeditorwork/css.worker.bundle.js",
-  "handlebars": "/monacoeditorwork/html.worker.bundle.js",
-  "razor": "/monacoeditorwork/html.worker.bundle.js"
-});</script>
-
-  <meta charset="utf-8" />
-  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
-  <meta name="viewport" content="width=device-width,initial-scale=1.0" />
-  <link rel="icon" href="https://bcw.blob.core.windows.net/public/img/9977764104160066" />
-  <link id="hljs-theme" rel="stylesheet"
-    href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.4.1/styles/night-owl.min.css" />
-  <link rel="stylesheet" href="css/main.css">
-  <title>
-    CodeWorks Learn
-  </title>
-  <script type="module" crossorigin src="/assets/index-6bc39c9e.js"></script>
-  <link rel="stylesheet" href="/assets/index-34eaf275.css">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>CodeWorks Academy</title>
+  <link rel="stylesheet" href="style.css">
+  <link rel="icon" href="https://course.codeworksacademy.com/fullstack/favicon.ico" type="image/x-icon">
 </head>
 
-<body data-bs-theme="dark" class="bg-page">
-  <noscript>
-    <strong>We're sorry but helpDesk.client doesn't work properly without JavaScript
-      enabled. Please enable it to continue.</strong>
-  </noscript>
-  <div id="app"></div>
-  <!-- built files will be auto injected -->
-  
+<body>
+
+  <!-- #region SVG -->
+
+
+  <svg xmlns="http://www.w3.org/2000/svg" style="display: none;">
+    <symbol id="divider-1" viewBox="0 0 400 50" fill="none" class="title-decorator">
+      <path d="M0 30 C100 0, 300 50, 400 30" stroke="#FFA500" stroke-width="2" fill="none" stroke-dasharray="10,10"
+        stroke-linecap="round"></path>
+    </symbol>
+    <symbol id="divider-2" viewBox="0 0 400 50" fill="none" class="title-decorator">
+      <path d="M0 25 L50 5 L100 25 L150 5 L200 25 L250 5 L300 25 L350 5 L400 25" stroke="#20B2AA" stroke-width="2"
+        fill="none" stroke-linecap="round"></path>
+    </symbol>
+    <symbol id="divider-3" viewBox="0 0 400 50" fill="none" class="title-decorator">
+      <path d="M0 20 C100 40, 300 0, 400 20" stroke="#8F7DE8" stroke-width="2" fill="none" stroke-linecap="round">
+      </path>
+      <path d="M0 30 C100 50, 300 10, 400 30" stroke="#FFD700" stroke-width="2" fill="none" stroke-linecap="round">
+      </path>
+    </symbol>
+    <symbol id="divider-4" viewBox="0 0 400 50" fill="none" class="title-decorator">
+      <path d="M0 20 C100 0, 300 40, 400 20" stroke="#77F6AA" stroke-width="2" fill="none" stroke-dasharray="5,5"
+        stroke-linecap="round"></path>
+    </symbol>
+    <symbol id="divider-5" viewBox="0 0 400 50" fill="none" class="title-decorator">
+      <path d="M0 25 Q50 5, 100 25 T200 25 T300 25 T400 25" stroke="#FF6F61" stroke-width="2" fill="none"
+        stroke-linecap="round"></path>
+    </symbol>
+    <symbol id="trail-1" viewBox="0 0 681 223" preserveAspectRatio="none">
+      <path
+        d="M39.7553 2C39.7553 95.5 -31.4439 124.41 19.7553 183.742C76.1968 249.149 241.772 214.188 317.249 176.742C368.482 151.323 362.821 107.964 353.899 82.7325C349.239 69.5552 336.962 61.3606 323.257 58.6193V58.6193C303.02 54.5714 281.762 63.0355 274.691 82.424C266.343 105.31 262.493 135.193 289.809 150.289C323.164 168.723 498.9 158.568 602.47 150.708C643.586 147.588 679 179.954 679 221.188V221.188"
+        stroke="white" stroke-width="3" stroke-linecap="round" stroke-dasharray="10 25.9"></path>
+    </symbol>
+    <symbol id="trail-2" viewBox="0 0 800 250" preserveAspectRatio="none">
+      <path d="M0 0 C 100 100, 200 0, 400 100 S 700 200, 800 0" stroke="white" stroke-width="3" stroke-linecap="round"
+        stroke-dasharray="15 30" fill="none"></path>
+    </symbol>
+    <symbol id="trail-3" viewBox="0 0 800 200" preserveAspectRatio="none">
+      <path d="M0 0 L 200 50 L 400 150 L 600 50 L 800 200" stroke="white" stroke-width="3" stroke-linecap="round"
+        stroke-dasharray="12 18" fill="none"></path>
+    </symbol>
+    <symbol id="trail-4" viewBox="0 0 800 300" preserveAspectRatio="none">
+      <path d="M0 0 C 100 100, 300 0, 400 100 C 500 200, 700 100, 800 200" stroke="white" stroke-width="3"
+        stroke-linecap="round" stroke-dasharray="10 25" fill="none"></path>
+    </symbol>
+    <symbol id="trail-5" viewBox="0 0 800 150" preserveAspectRatio="none">
+      <path d="M0 0 C 150 50, 300 -50, 450 50 S 650 150, 800 0" stroke="white" stroke-width="3" stroke-linecap="round"
+        stroke-dasharray="8 16" fill="none"></path>
+    </symbol>
+    <symbol id="trail-6" viewBox="0 0 800 200" preserveAspectRatio="none">
+      <path d="M0 0 C 400 50, 400 150, 800 200" stroke="white" stroke-width="3" stroke-linecap="round"
+        stroke-dasharray="12 24" fill="none"></path>
+    </symbol>
+    <symbol id="circle" viewBox="0 0 57 27">
+      <path stroke-linecap="round" stroke-linejoin="round"
+        d="M30.97 5.352C24.31 4.274 1 4.352 1 13.514c0 9.161 10.545 11.856 25.53 12.395 14.984.539 30.524-1.078 29.414-11.318S33.744.501 24.309 1.041">
+      </path>
+    </symbol>
+    <symbol id="underline" viewBox="0 0 761 25">
+      <path stroke-linecap="round" stroke-linejoin="round" d="M2 23S79 3.5 237 4s167.5 19 292.5 19 207-27.5 229-19.5">
+      </path>
+    </symbol>
+    <symbol id="underline-2" viewBox="0 0 41 8">
+      <path stroke-linecap="round" stroke-linejoin="round"
+        d="M1 4.046S15.684.38 25.19 1.092C31.106 1.534 40 4.046 40 4.046M7.418 7s6.417-2.954 13.823-2.954c7.405 0 12.835 2.532 12.835 2.532">
+      </path>
+    </symbol>
+    <symbol id="underline-3" viewBox="0 0 100 25">
+      <path stroke-linecap="round" stroke-linejoin="round" d="M2 23S79 3.5 237 4s167.5 19 292.5 19 207-27.5 229-19.5">
+      </path>
+    </symbol>
+    <symbol id="underline-4" viewBox="0 0 83 7">
+      <path
+        d="M1 2.98038C1 2.98038 5.91003 4.59565 9.49832 4.63251C13.7789 4.67648 15.2167 2.44764 19.4963 2.50834C23.9504 2.57151 25.0389 5.06938 29.4944 5.10455C34.4824 5.14392 35.5911 1.59666 40.4922 2.0363C43.907 2.34262 44.0404 4.43442 47.4908 4.63251C50.8753 4.82682 52.0827 3.04719 55.4892 2.98038C58.8957 2.91356 58.9925 4.71389 61.8758 4.90619C65.7269 5.16304 66.5973 2.43236 70.4286 2.0363C75.2313 1.5398 78.9814 5.49308 82 5.49316"
+        stroke="#8F7DE8" stroke-linecap="round"></path>
+    </symbol>
+    <symbol id="underline-5" viewBox="0 0 550 20">
+      <path
+        d="M2.00024 1.5C14.5002 19.5 34.5 21 60.5 10C102.864 -7.92334 154.649 17.7997 200 17.5C267.5 17.0539 294.186 7.58925 337 5C379.814 2.41075 402.484 20.6688 445 15C482.5 10 495 10 510.5 13.5C526 17 545.5 15 548.5 2"
+        stroke="#FF006A" stroke-linecap="round"></path>
+    </symbol>
+    <symbol id="heart" viewBox="0 0 24 24">
+      <path
+        d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z">
+      </path>
+    </symbol>
+    <symbol id="star" viewBox="0 0 24 24">
+      <path d="M12 17.27L18.18 21 15.64 13.97 21 9.24 13.81 8.63 12 2 10.19 8.63 3 9.24 8.36 13.97 5.82 21z"></path>
+    </symbol>
+    <symbol id="waves-1" viewBox="0 0 600 50">
+      <path d="M0 25 Q50 5, 100 25 T200 25 T300 25 T400 25 T500 25 T600 25" fill="none" stroke-linecap="round"></path>
+    </symbol>
+  </svg>
+
+  <!-- #endregion -->
+
+
+  <header>
+    <nav>
+      <img src="https://course.codeworksacademy.com/fullstack/logo-dark.png" alt="CodeWorks Logo">
+      <a href="/login" class="t-gradient t-1 login">Sign In</a>
+    </nav>
+  </header>
+
+  <section class="hero">
+    <div class="bg-gradient p-5"><img src="https://bcw.blob.core.windows.net/public/img/8600856373152463" loading="lazy"
+        alt="codeworks" class="company-logo">
+      <div class="hero-title">
+        <div class="fs-4" style="text-transform: uppercase;">Welcome to </div>
+        <h1 class="gradient-text">CodeWorks Academy</h1>
+        <p class="subtitle">Your guide to building amazing games, websites and applications</p>
+      </div>
+      <div class="d-flex gap-5 course-details">
+        <div class="hero-text">
+          <p class="mb-1"></p>
+          <a href="https://ghl.codeworksacademy.com/request-more-information" rel="noopener" class="cta-btn">Learn
+            More!
+          </a>
+        </div>
+        <div class="hero-media"><img src="https://course.codeworksacademy.com/fullstack/course-logo.png"
+            alt="course image" loading="lazy"></div>
+      </div>
+    </div>
+  </section>
+
+
+  <main>
+
+
+    <!-- <div class="course-breakdown">
+      <section class="codeworks-courses">
+        <section class="promo-content"><svg viewBox="0 0 600 150" xmlns="http://www.w3.org/2000/svg"
+            class="wordmark-svg">
+            <defs>
+              <linearGradient id="gradient1" x1="0" y1="0" x2="1" y2="1">
+                <stop offset="0%" stop-color="var(--success)"></stop>
+                <stop offset="100%" stop-color="var(--brand)"></stop>
+              </linearGradient>
+            </defs><text x="10" y="100" font-size="40" fill="url(#gradient1)"
+              style="text-shadow:2px 2px 0 var(--bg-color), -2px 2px 0 var(--bg-color), 0 2px 0 var(--bg-color);">
+              Why CodeWorks? </text>
+            <path d="M10 120 C 100 90, 200 150, 300 120 S 500 90, 580 120" stroke="url(#gradient1)" stroke-width="3"
+              fill="none" stroke-dasharray="5,5"></path>
+          </svg>
+          <p class="heading"> Learning modern web development is <span class="text-effect">challenging!<svg
+                class="icon circle" xmlns="http://www.w3.org/2000/svg">
+                <use href="#circle" style="stroke: rgb(255, 111, 97); fill: none; opacity: 1; stroke-width: 2;"></use>
+              </svg></span></p>
+          <p> Skills like <span class="text-effect">React</span>, <span class="text-effect">JavaScript</span>, and
+            advanced front-end techniques are <span class="text-effect">“must-haves”</span> for developers. But if
+            you've
+            tried to learn
+            these technologies before, you know how <span class="text-effect">overwhelming</span> it
+            can be. </p>
+          <p class="heading"> At CodeWorks, we do things <span class="text-effect">differently.<svg
+                class="icon underline" xmlns="http://www.w3.org/2000/svg">
+                <use href="#underline" style="stroke: var(--brand); fill: none; opacity: 1; stroke-width: 30;"></use>
+              </svg></span></p>
+          <p> With our unique hands-on approach, you won't just <span class="t-gradient t-1">learn</span> how to code,
+            you'll <span class="text-effect">develop</span> the skills and confidence to apply what you've learned to
+            <span class="text-effect">real-world projects</span>.
+          </p>
+          <p class="heading"> Here's how we make it <span class="text-effect">Happen.<svg class="icon heart"
+                xmlns="http://www.w3.org/2000/svg">
+                <use href="#heart" style="stroke: rgb(255, 111, 97); fill: none; opacity: 1; stroke-width: 2;"></use>
+              </svg></span></p>
+          <div class="trails">
+            <div class="divider"><span class="text-effect w-50"><svg class="icon trail-2"
+                  xmlns="http://www.w3.org/2000/svg">
+                  <use href="#trail-2" style="stroke: rgb(255, 111, 97); fill: none; opacity: 1; stroke-width: 2;">
+                  </use>
+                </svg></span></div>
+            <section>
+              <p class="heading"> 1. Community Support </p>
+              <p> From the moment you enroll, you gain access to our private Discord community—a
+                vibrant network of instructors, students, and alumni who are ready to help you every step of the way.
+                Need
+                guidance? Stuck on a problem? Just hop in and ask! </p>
+            </section>
+            <div class="divider"><span class="text-effect w-50"><svg class="icon trail-2"
+                  xmlns="http://www.w3.org/2000/svg">
+                  <use href="#trail-2" style="stroke: rgb(255, 111, 97); fill: none; opacity: 1; stroke-width: 2;">
+                  </use>
+                </svg></span></div>
+            <section>
+              <p class="heading"> 2. Dedicated Instructor Hours </p>
+              <p> Our seasoned instructors are available for office hours Monday through Friday, 1-5 PM
+                MST. This means personalized help is just a Zoom call away, whether you're debugging your code, tackling
+                a
+                tricky concept, or preparing for a big assignment. </p>
+            </section>
+            <div class="divider"><span class="text-effect w-50"><svg class="icon trail-2"
+                  xmlns="http://www.w3.org/2000/svg">
+                  <use href="#trail-2" style="stroke: rgb(255, 111, 97); fill: none; opacity: 1; stroke-width: 2;">
+                  </use>
+                </svg></span></div>
+            <section>
+              <p class="heading"> 3. Hands-On Learning </p>
+              <p> Forget passive tutorials. At CodeWorks, you'll dive into hands-on labs, guided
+                lectures, and interactive exercises designed to build real-world skills. Every unit is packed with
+                challenges that mimic the types of tasks you'll encounter on the job. </p>
+            </section>
+            <div class="divider"><span class="text-effect w-50"><svg class="icon trail-2"
+                  xmlns="http://www.w3.org/2000/svg">
+                  <use href="#trail-2" style="stroke: rgb(255, 111, 97); fill: none; opacity: 1; stroke-width: 2;">
+                  </use>
+                </svg></span></div>
+            <section>
+              <p class="heading"> 4. Skill Verifications with Checkpoints </p>
+              <p> Every course includes quizzes, vocabulary reviews, and timed skill verifications we
+                call Checkpoints. These are designed to simulate real-world assignments, and they're graded 1-on-1 with
+                live instructor feedback. This ensures you're not just learning—you're mastering skills that employers
+                are
+                looking for. </p>
+            </section>
+            <div class="divider"><span class="text-effect w-50"><svg class="icon trail-2"
+                  xmlns="http://www.w3.org/2000/svg">
+                  <use href="#trail-2" style="stroke: rgb(255, 111, 97); fill: none; opacity: 1; stroke-width: 2;">
+                  </use>
+                </svg></span></div>
+            <section>
+              <p class="heading"> 5. Career Mapping and Professional Growth </p>
+              <p> Each course comes with a personalized career map and tips to help you break into or
+                advance your career. From portfolio guidance to insider strategies, we set you up for success beyond the
+                classroom. </p>
+            </section>
+            <div class="divider"><span class="text-effect w-50"><svg class="icon trail-2"
+                  xmlns="http://www.w3.org/2000/svg">
+                  <use href="#trail-2" style="stroke: rgb(255, 111, 97); fill: none; opacity: 1; stroke-width: 2;">
+                  </use>
+                </svg></span></div>
+            <section>
+              <p class="heading"> 6. Experienced Instructors </p>
+              <p> Our instructors are seasoned professionals with years of real-world experience. They
+                bring practical insights and industry best practices into every lecture, so you're not just learning
+                theory—you're learning how to thrive in the workplace. </p>
+            </section>
+            <div class="divider"><span class="text-effect w-50"><svg class="icon trail-2"
+                  xmlns="http://www.w3.org/2000/svg">
+                  <use href="#trail-2" style="stroke: rgb(255, 111, 97); fill: none; opacity: 1; stroke-width: 2;">
+                  </use>
+                </svg></span></div>
+            <section>
+              <p class="heading"> A Proven Path to Success </p>
+              <p> At CodeWorks, we're more than just an online course provider. We're your partner in
+                achieving your career goals. </p>
+              <p> By combining interactive learning, personalized support, and industry expertise,
+                we've created a system that empowers students to succeed—whether you're a complete beginner or looking
+                to
+                take your skills to the next level. </p>
+            </section>
+            <div class="divider"><span class="text-effect w-50"><svg class="icon trail-2"
+                  xmlns="http://www.w3.org/2000/svg">
+                  <use href="#trail-2" style="stroke: rgb(255, 111, 97); fill: none; opacity: 1; stroke-width: 2;">
+                  </use>
+                </svg></span></div>
+            <section>
+              <p class="heading"> Ready to Take the Leap? </p>
+              <p> CodeWorks isn't just about learning—it's about transforming your career. When you
+                join us, you're not just signing up for a course. You're joining a community that's invested in your
+                success. </p>
+              <p> Let's build your future together. Start your journey today. </p>
+            </section>
+          </div>
+        </section>
+      </section>
+    </div> -->
+
+  </main>
+
+  <footer class="footer">
+    <svg viewBox="0 0 400 50" fill="none" xmlns="http://www.w3.org/2000/svg" class="title-decorator">
+      <path d="M0 20 C100 0, 300 40, 400 20" stroke="#77F6AA" stroke-width="1" fill="none" stroke-dasharray="5,5"
+        stroke-linecap="round"></path>
+    </svg>
+    <p>
+      © 2025 CodeWorks Building Blocks of Web Development. All rights reserved.
+    </p>
+  </footer>
+
 </body>
 
 </html>

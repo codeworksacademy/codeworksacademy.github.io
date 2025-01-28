@@ -1,0 +1,240 @@
+:root {
+  --theme-gradient: linear-gradient(to bottom, #11c4b0, #db00e1);
+  --warning-gradient: linear-gradient(120deg, #ff8a00 30%, #e52e71);
+  --success-gradient: linear-gradient(120deg, #34feb1 30%, #b2ff47);
+  --error-gradient: linear-gradient(120deg, #ff4757 30%, #ff7b44);
+  --info-gradient: linear-gradient(120deg, #00d8d6 30%, #c016f8);
+  --muted-gradient: linear-gradient(120deg, #cdd2d2 30%, #474547);
+  --bg: #161d2b;
+  --bg-alt: #141a26;
+  --bg-elv: #1b2232;
+  --bg-soft: #0e131e76;
+  --bg-lab: #111318;
+  --brand: #a8b1ff;
+}
+
+img {
+  max-width: 100%;
+}
+
+html,
+body {
+  color: #ebebeb;
+  display: flex;
+  min-height: 100vh;
+  flex-direction: column;
+  font-family: Manrope, sans-serif;
+  font-optical-sizing: auto;
+  font-style: normal;
+  margin: 0;
+  min-width: 320px;
+  min-height: 100vh;
+  line-height: 24px;
+  font-size: 16px;
+  font-weight: 400;
+  font-synthesis: style;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  background-color: var(--bg);
+  overflow-x: hidden;
+}
+
+main {
+  flex-grow: 1;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+nav {
+  background-color: #0f141e;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1em;
+}
+
+a.login {
+  font-weight: 700;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+}
+
+
+.t-gradient .t-1 {
+  background-image: var(--success-gradient);
+}
+
+.t-gradient .t-2 {
+  background-image: var(--warning-gradient);
+}
+
+.t-gradient {
+  background-clip: text;
+  background-image: var(--info-gradient);
+  color: transparent;
+}
+
+.hero {
+  padding: 10px clamp(10px, 50px, 2vw);
+}
+
+.hero .bg-gradient {
+  background-image: linear-gradient(rgba(6, 27, 96, .2392156863) 20%, transparent);
+  border-radius: 15px;
+  width: 100%;
+  padding: 3rem;
+}
+
+.d-flex {
+  display: flex;
+  flex-wrap: wrap;
+}
+
+.gap-1 {
+  gap: .25rem;
+}
+
+.gap-2 {
+  gap: .5rem;
+}
+
+.gap-3 {
+  gap: 1rem;
+}
+
+.gap-4 {
+  gap: 1.5rem;
+}
+
+.gap-5 {
+  gap: 2rem;
+}
+
+.hero .company-logo {
+  max-width: 130px;
+  margin-bottom: 40px;
+  margin-left: auto;
+  margin-right: auto;
+  display: block;
+}
+
+.hero .hero-title h1 {
+  font-size: clamp(35px, 3.5vw, 100px);
+  font-weight: 800;
+  line-height: 1.2em;
+  max-width: 45vw;
+  margin: 0;
+}
+
+.hero .subtitle {
+  font-size: 1.5rem;
+  font-weight: 500;
+  margin-top: 20px;
+  color: #ebebeb;
+}
+
+
+.hero .cta-btn {
+  box-shadow: 0 0 #3edbf7;
+  animation: pulse 1.25s infinite;
+  color: #fff;
+  text-align: center;
+  text-transform: uppercase;
+  background: linear-gradient(90deg, #3eebf7, #268cf9);
+  background-position: 0%;
+  background-size: 200%;
+  border-radius: 50px;
+  width: 100%;
+  max-width: 511px;
+  max-height: 96px;
+  padding: 36px;
+  font-family: Manrope, sans-serif;
+  font-size: 30px;
+  font-weight: 700;
+  line-height: .8em;
+  transition: all .3s;
+  display: inline-block;
+}
+
+.hero .hero-media {
+  text-align: end;
+  margin: 0 40px;
+  flex-grow: 1;
+}
+
+
+@keyframes pulse {
+  0% {
+    box-shadow: 0 0 0 0 rgba(62, 235, 247, .7);
+  }
+
+  70% {
+    box-shadow: 0 0 0 10px rgba(62, 235, 247, 0);
+  }
+
+  100% {
+    box-shadow: 0 0 0 0 rgba(62, 235, 247, 0);
+  }
+}
+
+
+.fs-4 {
+  font-size: 1.5rem;
+}
+
+.gradient-text {
+  background: var(--theme-gradient);
+  background-clip: text;
+  color: transparent;
+}
+
+
+.text-effect {
+  --bg: rgba(22, 29, 43, .6);
+  display: inline-flex;
+  align-items: center;
+  position: relative;
+  font-weight: 900;
+  color: var(--brand);
+  text-shadow: var(--bg) 0px 1px 2px, var(--bg) 0px 2px 4px, var(--bg) 0px 4px 8px, var(--bg) 0px 8px 16px;
+}
+
+
+::-webkit-scrollbar-thumb {
+  background: var(--theme-gradient);
+}
+
+::-webkit-scrollbar {
+  background: linear-gradient(to bottom, #11c4b033, #db00e133);
+  width: 2px;
+  height: 4px;
+}
+
+footer {
+  width: 80%;
+  margin: 0 auto;
+}
+
+footer p {
+  text-align: center;
+}
+
+@media screen AND (max-width: 768px) {
+  .hero .bg-gradient {
+    padding: .5rem;
+  }
+
+  .hero h1.gradient-text {
+    max-width: 100%;
+  }
+
+  .hero .subtitle {
+    font-size: 1.2rem;
+  }
+
+  .hero .cta-btn {
+    font-size: 1.5rem;
+  }
+
+}
