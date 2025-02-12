@@ -79,6 +79,7 @@ async function exchangeCodeForToken(authCode) {
       code: authCode,
       redirect_uri: REDIRECT_URI,
       code_verifier: codeVerifier,
+      audience
     }),
   });
 

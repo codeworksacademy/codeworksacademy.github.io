@@ -1,3 +1,4 @@
+const audience = 'https://codeworksacademy.com';
 const AUTH0_DOMAIN = 'codeworksacademy.auth0.com';
 const CLIENT_ID = 'Pr738Hn5ZZhYYahOhTukx3phzlIPGCfl';
 const LOGIN_URL = 'https://codeworksacademy.com/login';
@@ -23,6 +24,7 @@ async function exchangeCodeForToken(authCode) {
       code: authCode,
       redirect_uri: REDIRECT_URI,
       code_verifier: codeVerifier,
+      audience: audience,
     }),
   });
 
