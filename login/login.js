@@ -53,6 +53,7 @@ async function redirectToAuth0(from) {
   loginUrl.searchParams.set('scope', 'openid profile email');
   loginUrl.searchParams.set('code_challenge', codeChallenge);
   loginUrl.searchParams.set('code_challenge_method', 'S256');
+  loginUrl.searchParams.set('audience', audience);
 
   if (from) {
     localStorage.setItem(FROM_KEY, from);
