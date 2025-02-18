@@ -4,7 +4,6 @@ const audience = 'https://codeworksacademy.com';
 const REDIRECT_URI = 'https://codeworksacademy.com/login';
 const FROM_KEY = 'auth_from';
 
-// Utility functions for PKCE
 function generateRandomString(length = 43) {
   const array = new Uint8Array(length);
   window.crypto.getRandomValues(array);
@@ -21,7 +20,6 @@ async function generateCodeChallenge(verifier) {
     .replace(/=+$/, '');
 }
 
-// Redirect user to Auth0 login with PKCE
 async function redirectToAuth0(from) {
   const codeVerifier = generateRandomString();
   const codeChallenge = await generateCodeChallenge(codeVerifier);
@@ -43,7 +41,6 @@ async function redirectToAuth0(from) {
   window.location.href = loginUrl.toString();
 }
 
-// Exchange Auth Code for an Access Token (Silent Auth Enabled)
 async function exchangeCodeForToken(authCode) {
   const codeVerifier = localStorage.getItem('code_verifier');
   if (!codeVerifier) throw new Error('Code verifier missing');
@@ -66,15 +63,13 @@ async function exchangeCodeForToken(authCode) {
   }
 
   const data = await response.json();
-  window.accessToken = data.access_token; // Store in memory only
+  window.accessToken = data.access_token;
 
-  // Redirect back to the original site
   const from = localStorage.getItem(FROM_KEY);
   localStorage.removeItem(FROM_KEY);
   window.location.href = from ? from : '/';
 }
 
-// Silent Authentication (Automatic Refresh)
 async function silentAuth() {
   const authUrl = new URL(`https://${AUTH0_DOMAIN}/authorize`);
   authUrl.searchParams.set('client_id', CLIENT_ID);
@@ -82,7 +77,7 @@ async function silentAuth() {
   authUrl.searchParams.set('redirect_uri', REDIRECT_URI);
   authUrl.searchParams.set('scope', 'openid profile email');
   authUrl.searchParams.set('audience', audience);
-  authUrl.searchParams.set('prompt', 'none'); // Silent authentication
+  authUrl.searchParams.set('prompt', 'none');
 
   const iframe = document.createElement('iframe');
   iframe.src = authUrl.toString();
@@ -96,6 +91,7 @@ async function silentAuth() {
 
   document.body.removeChild(iframe);
   console.log('Silent authentication successful.');
+  window.location.href = '/';
 }
 
 // Handle Redirects
