@@ -1,19 +1,40 @@
 const AUTH0_DOMAIN = 'codeworksacademy.auth0.com';
 const CLIENT_ID = 'Pr738Hn5ZZhYYahOhTukx3phzlIPGCfl';
 const audience = 'https://codeworksacademy.com';
-const LOGIN_URL = 'https://codeworksacademy.com/login';
+const LOGIN_URL = location.origin.includes('localhost:') ? window.location.origin + '/login' : 'https://codeworksacademy.com/login';
 const REDIRECT_URI = 'https://codeworksacademy.com';
 
+
 window.accessToken = null;
+
 
 function getAuthCode() {
   const urlParams = new URLSearchParams(window.location.search);
   return urlParams.get('code');
 }
 
+
+async function storeCodeVerifier() {
+  if (!localStorage.getItem('code_verifier')) {
+    const codeVerifier = generateRandomString();
+    const codeChallenge = await generateCodeChallenge(codeVerifier);
+    localStorage.setItem('code_verifier', codeVerifier);
+    localStorage.setItem('code_challenge', codeChallenge);
+  }
+}
+
+
 async function exchangeCodeForToken(authCode) {
   const codeVerifier = localStorage.getItem('code_verifier');
-  if (!codeVerifier) throw new Error('Code verifier missing');
+
+
+  if (!codeVerifier) {
+    console.warn('Code verifier missing, redirecting to login...');
+    localStorage.removeItem('code_verifier');
+    localStorage.removeItem('code_challenge');
+    redirectToLogin();
+    return;
+  }
 
   const response = await fetch(`https://${AUTH0_DOMAIN}/oauth/token`, {
     method: 'POST',
@@ -37,9 +58,12 @@ async function exchangeCodeForToken(authCode) {
 
 
   history.replaceState({}, document.title, window.location.pathname);
+  localStorage.removeItem('code_verifier');
+  localStorage.removeItem('code_challenge');
 
   await fetchUserInfo();
 }
+
 
 async function fetchUserInfo() {
   if (!window.accessToken) {
@@ -66,6 +90,7 @@ async function fetchUserInfo() {
     redirectToLogin();
   }
 }
+
 
 async function silentAuth() {
   return new Promise((resolve, reject) => {
@@ -103,14 +128,19 @@ async function silentAuth() {
     setTimeout(() => {
       window.removeEventListener('message', handleMessage);
       document.body.removeChild(iframe);
+      console.warn('Silent authentication timed out, redirecting to login...');
+      redirectToLogin();
       reject(new Error('Silent authentication timed out'));
     }, 5000);
   });
 }
 
+
 function redirectToLogin() {
-  window.location.href = `${LOGIN_URL}`;
+  console.warn('Redirecting user to login...');
+  // window.location.href = `${LOGIN_URL}`;
 }
+
 
 function updateNavbar(userInfo) {
   console.log('Updating navbar with user info:', userInfo);
@@ -118,7 +148,9 @@ function updateNavbar(userInfo) {
   document.getElementById('logout').style.display = 'block';
 }
 
+
 async function checkLogin() {
+  await storeCodeVerifier();
   const authCode = getAuthCode();
 
   if (authCode) {
@@ -127,5 +159,23 @@ async function checkLogin() {
     await silentAuth();
   }
 }
+
+
+function generateRandomString(length = 43) {
+  const array = new Uint8Array(length);
+  window.crypto.getRandomValues(array);
+  return Array.from(array, byte => (byte % 36).toString(36)).join('');
+}
+
+async function generateCodeChallenge(verifier) {
+  const encoder = new TextEncoder();
+  const data = encoder.encode(verifier);
+  const hashBuffer = await crypto.subtle.digest('SHA-256', data);
+  return btoa(String.fromCharCode(...new Uint8Array(hashBuffer)))
+    .replace(/\+/g, '-')
+    .replace(/\//g, '_')
+    .replace(/=+$/, '');
+}
+
 
 checkLogin();
