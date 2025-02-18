@@ -1,21 +1,21 @@
-const audience = 'https://codeworksacademy.com';
 const AUTH0_DOMAIN = 'codeworksacademy.auth0.com';
 const CLIENT_ID = 'Pr738Hn5ZZhYYahOhTukx3phzlIPGCfl';
+const audience = 'https://codeworksacademy.com';
 const LOGIN_URL = 'https://codeworksacademy.com/login';
-const COOKIE_NAME = `auth0.${CLIENT_ID}.access_token`;
-const IS_DEV = window.location.hostname === 'localhost';
-const domain = IS_DEV ? window.location.hostname : 'codeworksacademy.com';
+const REDIRECT_URI = 'https://codeworksacademy.com';
 
+window.accessToken = null;
+
+function getAuthCode() {
+  const urlParams = new URLSearchParams(window.location.search);
+  return urlParams.get('code');
+}
 
 async function exchangeCodeForToken(authCode) {
-  const tokenUrl = `https://${AUTH0_DOMAIN}/oauth/token`;
   const codeVerifier = localStorage.getItem('code_verifier');
+  if (!codeVerifier) throw new Error('Code verifier missing');
 
-  if (!codeVerifier) {
-    throw new Error('Code verifier is missing');
-  }
-
-  const response = await fetch(tokenUrl, {
+  const response = await fetch(`https://${AUTH0_DOMAIN}/oauth/token`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({
@@ -24,68 +24,31 @@ async function exchangeCodeForToken(authCode) {
       code: authCode,
       redirect_uri: REDIRECT_URI,
       code_verifier: codeVerifier,
-      audience: audience,
+      audience,
     }),
   });
 
   if (!response.ok) {
-    const errorDetails = await response.text();
-    throw new Error(`Failed to exchange authorization code for token: ${errorDetails}`);
+    throw new Error(`Failed to exchange code: ${await response.text()}`);
   }
 
   const data = await response.json();
+  window.accessToken = data.access_token;
 
-  setCookie(`auth0.${CLIENT_ID}.access_token`, data.access_token, data.expires_in);
-  setCookie(`auth0.${CLIENT_ID}.is.authenticated`, 'true', data.expires_in);
-  setCookie(`auth0.${CLIENT_ID}.refresh_token`, data.refresh_token, 30)
+  history.replaceState({}, document.title, window.location.pathname);
 
-  return data;
+  await fetchUserInfo();
 }
 
-function setCookie(name, value, days) {
-  const expires = new Date();
-  expires.setTime(expires.getTime() + days * 24 * 60 * 60 * 1000);
-  document.cookie = `${name}=${value}; expires=${expires.toUTCString()}; path=/; domain=.${domain}; Secure; SameSite=None`;
-}
-
-function getCookie(name) {
-  const matches = document.cookie.match(new RegExp(
-    `(?:^|; )${name.replace(/([.$?*|{}()\[\]\\/\+^])/g, '\\$1')}=([^;]*)`
-  ));
-  return matches ? decodeURIComponent(matches[1]) : undefined;
-}
-
-function deleteCookie(name) {
-  setCookie(name, '', -1);
-}
-
-
-async function checkLogin() {
-  const urlParams = new URLSearchParams(window.location.search);
-  const code = urlParams.get('code');
-  const accessToken = getCookie(COOKIE_NAME);
-
-  if (code) {
-    try {
-      const data = await exchangeCodeForToken(code);
-      console.log('Exchanged code for token:', data);
-      updateNavbar()
-      return
-    } catch (error) {
-      console.error('Failed to exchange code for token:', error);
-    }
-  }
-
-
-  if (!accessToken) {
+async function fetchUserInfo() {
+  if (!window.accessToken) {
+    console.warn('No access token available.');
     return;
   }
 
   try {
     const response = await fetch(`https://${AUTH0_DOMAIN}/userinfo`, {
-      headers: {
-        Authorization: `Bearer ${accessToken}`,
-      },
+      headers: { Authorization: `Bearer ${window.accessToken}` },
     });
 
     if (!response.ok) {
@@ -95,12 +58,39 @@ async function checkLogin() {
     const userInfo = await response.json();
     console.log('User is logged in:', userInfo);
 
-    updateNavbar(userInfo)
+    updateNavbar(userInfo);
   } catch (error) {
     console.error('Error validating access token:', error);
-    // console.warn('Redirecting to login page...');
-    // window.location.href = `${LOGIN_URL}?from=root`;
+    redirectToLogin();
   }
+}
+
+async function silentAuth() {
+  const authUrl = new URL(`https://${AUTH0_DOMAIN}/authorize`);
+  authUrl.searchParams.set('client_id', CLIENT_ID);
+  authUrl.searchParams.set('response_type', 'code');
+  authUrl.searchParams.set('redirect_uri', REDIRECT_URI);
+  authUrl.searchParams.set('scope', 'openid profile email');
+  authUrl.searchParams.set('audience', audience);
+  authUrl.searchParams.set('prompt', 'none');
+
+  const iframe = document.createElement('iframe');
+  iframe.src = authUrl.toString();
+  iframe.style.display = 'none';
+  document.body.appendChild(iframe);
+
+  await new Promise((resolve, reject) => {
+    iframe.onload = () => resolve();
+    iframe.onerror = () => reject(new Error('Silent authentication failed'));
+  });
+
+  document.body.removeChild(iframe);
+  console.log('Silent authentication successful.');
+  await fetchUserInfo();
+}
+
+function redirectToLogin() {
+  window.location.href = `${LOGIN_URL}`;
 }
 
 function updateNavbar(userInfo) {
@@ -109,5 +99,14 @@ function updateNavbar(userInfo) {
   document.getElementById('logout').style.display = 'block';
 }
 
-// Run the login check
+async function checkLogin() {
+  const authCode = getAuthCode();
+
+  if (authCode) {
+    await exchangeCodeForToken(authCode);
+  } else {
+    await silentAuth();
+  }
+}
+
 checkLogin();

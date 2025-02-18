@@ -1,178 +1,10 @@
-const audience = 'https://codeworksacademy.com';
 const AUTH0_DOMAIN = 'codeworksacademy.auth0.com';
 const CLIENT_ID = 'Pr738Hn5ZZhYYahOhTukx3phzlIPGCfl';
-const IS_DEV = window.location.hostname === 'localhost';
-const REDIRECT_URI = IS_DEV ? location.href : 'https://codeworksacademy.com/login';
-const LOGOUT_REDIRECT = IS_DEV ? location.origin : 'https://codeworksacademy.com';
-const domain = IS_DEV ? window.location.hostname : 'codeworksacademy.com';
-const FROM_KEY = 'from';
+const audience = 'https://codeworksacademy.com';
+const REDIRECT_URI = 'https://codeworksacademy.com/login';
+const FROM_KEY = 'auth_from';
 
-const BASE_COOKIE = `auth0.${CLIENT_ID}`;
-
-function checkCookies() {
-  document.cookie = 'test_cookie=1';
-  const cookiesEnabled = document.cookie.includes('test_cookie');
-  document.cookie = 'test_cookie=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;';
-  return cookiesEnabled;
-}
-
-function showCookiesDisabledMessage() {
-  const body = document.body;
-  body.innerHTML = `
-    <h1>Cookies Disabled</h1>
-    <p>Cookies are required for authentication. Please enable cookies in your browser settings to continue.</p>
-  `;
-  body.style.textAlign = 'center';
-  body.style.marginTop = '20%';
-  body.style.fontFamily = 'Arial, sans-serif';
-}
-
-function getCookie(name) {
-  const matches = document.cookie.match(new RegExp(
-    `(?:^|; )${name.replace(/([.$?*|{}()\[\]\\/\+^])/g, '\\$1')}=([^;]*)`
-  ));
-  return matches ? decodeURIComponent(matches[1]) : undefined;
-}
-
-
-
-function logoutUser() {
-
-  localStorage.removeItem(FROM_KEY);
-  localStorage.removeItem('code_verifier');
-
-  deleteCookie(`${BASE_COOKIE}.access_token`);
-  deleteCookie(`${BASE_COOKIE}.is.authenticated`);
-
-  const logoutUrl = new URL(`https://${AUTH0_DOMAIN}/v2/logout`);
-  logoutUrl.searchParams.set('client_id', CLIENT_ID);
-  logoutUrl.searchParams.set('returnTo', LOGOUT_REDIRECT);
-
-  window.location.href = logoutUrl.toString();
-}
-
-async function redirectToAuth0(from) {
-  const codeVerifier = generateRandomString();
-  const codeChallenge = await generateCodeChallenge(codeVerifier);
-  localStorage.setItem('code_verifier', codeVerifier);
-
-  const loginUrl = new URL(`https://${AUTH0_DOMAIN}/authorize`);
-  loginUrl.searchParams.set('client_id', CLIENT_ID);
-  loginUrl.searchParams.set('response_type', 'code');
-  loginUrl.searchParams.set('redirect_uri', REDIRECT_URI);
-  loginUrl.searchParams.set('scope', 'openid profile email  offline_access');
-  loginUrl.searchParams.set('code_challenge', codeChallenge);
-  loginUrl.searchParams.set('code_challenge_method', 'S256');
-  loginUrl.searchParams.set('audience', audience);
-
-  if (from) {
-    localStorage.setItem(FROM_KEY, from);
-  }
-
-  window.location.href = loginUrl.toString();
-}
-
-async function exchangeCodeForToken(authCode) {
-  const tokenUrl = `https://${AUTH0_DOMAIN}/oauth/token`;
-  const codeVerifier = localStorage.getItem('code_verifier');
-
-  if (!codeVerifier) {
-    throw new Error('Code verifier is missing');
-  }
-
-  const response = await fetch(tokenUrl, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({
-      grant_type: 'authorization_code',
-      client_id: CLIENT_ID,
-      code: authCode,
-      redirect_uri: REDIRECT_URI,
-      code_verifier: codeVerifier,
-      audience
-    }),
-  });
-
-  if (!response.ok) {
-    const errorDetails = await response.text();
-    throw new Error(`Failed to exchange authorization code for token: ${errorDetails}`);
-  }
-
-  const data = await response.json();
-
-  setCookie(`${BASE_COOKIE}.access_token`, data.access_token, data.expires_in);
-  setCookie(`${BASE_COOKIE}.is.authenticated`, 'true', data.expires_in);
-  setCookie(`${BASE_COOKIE}.refresh_token`, data.refresh_token, 30);
-
-  return data;
-}
-
-function setCookie(name, value, days) {
-  const expires = new Date();
-  expires.setTime(expires.getTime() + days * 24 * 60 * 60 * 1000);
-  document.cookie = `${name}=${value}; expires=${expires.toUTCString()}; path=/; domain=.${domain}; Secure; SameSite=None`;
-}
-
-function setLocalhostCookie(name, value, days) {
-  const expires = new Date();
-  expires.setTime(expires.getTime() + days * 24 * 60 * 60 * 1000);
-  document.cookie = `${name}=${value}; expires=${expires.toUTCString()}; path=/; Secure; SameSite=None; domain=localhost`;
-}
-
-
-function deleteCookie(name) {
-  setCookie(name, '', -1);
-}
-
-async function handleRedirect() {
-  if (!checkCookies()) {
-    showCookiesDisabledMessage();
-    return;
-  }
-
-  const urlParams = new URLSearchParams(window.location.search);
-  const from = urlParams.get('from');
-  const code = urlParams.get('code');
-  const logout = urlParams.get('logout');
-
-  if (logout) {
-    logoutUser();
-    return;
-  }
-
-  if (from) {
-    await redirectToAuth0(from);
-    return;
-  }
-
-  if (code) {
-    try {
-      await exchangeCodeForToken(code);
-      const storedFrom = localStorage.getItem(FROM_KEY);
-      if (storedFrom) {
-        localStorage.removeItem(FROM_KEY);
-
-        if (storedFrom.includes('localhost:')) {
-          setLocalhostCookie(BASE_COOKIE + '.access_token', getCookie(BASE_COOKIE + '.access_token'), 1);
-          setLocalhostCookie(BASE_COOKIE + '.is.authenticated', getCookie(BASE_COOKIE + '.is.authenticated'), 1);
-          setLocalhostCookie(BASE_COOKIE + '.refresh_token', getCookie(BASE_COOKIE + '.refresh_token'), 1);
-        }
-
-        window.location.href = storedFrom.startsWith('http') ? storedFrom : `https://course.codeworksacademy.com/${storedFrom}`;
-      } else {
-        window.location.href = '/';
-      }
-    } catch (error) {
-      console.error('Authentication error:', error);
-      window.location.href = '/';
-    }
-    return;
-  }
-  console.error('Invalid redirect');
-  redirectToAuth0();
-}
-
-// Utility functions
+// Utility functions for PKCE
 function generateRandomString(length = 43) {
   const array = new Uint8Array(length);
   window.crypto.getRandomValues(array);
@@ -189,5 +21,96 @@ async function generateCodeChallenge(verifier) {
     .replace(/=+$/, '');
 }
 
+// Redirect user to Auth0 login with PKCE
+async function redirectToAuth0(from) {
+  const codeVerifier = generateRandomString();
+  const codeChallenge = await generateCodeChallenge(codeVerifier);
+  localStorage.setItem('code_verifier', codeVerifier);
+
+  const loginUrl = new URL(`https://${AUTH0_DOMAIN}/authorize`);
+  loginUrl.searchParams.set('client_id', CLIENT_ID);
+  loginUrl.searchParams.set('response_type', 'code');
+  loginUrl.searchParams.set('redirect_uri', REDIRECT_URI);
+  loginUrl.searchParams.set('scope', 'openid profile email');
+  loginUrl.searchParams.set('code_challenge', codeChallenge);
+  loginUrl.searchParams.set('code_challenge_method', 'S256');
+  loginUrl.searchParams.set('audience', audience);
+
+  if (from) {
+    localStorage.setItem(FROM_KEY, from);
+  }
+
+  window.location.href = loginUrl.toString();
+}
+
+// Exchange Auth Code for an Access Token (Silent Auth Enabled)
+async function exchangeCodeForToken(authCode) {
+  const codeVerifier = localStorage.getItem('code_verifier');
+  if (!codeVerifier) throw new Error('Code verifier missing');
+
+  const response = await fetch(`https://${AUTH0_DOMAIN}/oauth/token`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      grant_type: 'authorization_code',
+      client_id: CLIENT_ID,
+      code: authCode,
+      redirect_uri: REDIRECT_URI,
+      code_verifier: codeVerifier,
+      audience,
+    }),
+  });
+
+  if (!response.ok) {
+    throw new Error(`Failed to exchange code: ${await response.text()}`);
+  }
+
+  const data = await response.json();
+  window.accessToken = data.access_token; // Store in memory only
+
+  // Redirect back to the original site
+  const from = localStorage.getItem(FROM_KEY);
+  localStorage.removeItem(FROM_KEY);
+  window.location.href = from ? from : '/';
+}
+
+// Silent Authentication (Automatic Refresh)
+async function silentAuth() {
+  const authUrl = new URL(`https://${AUTH0_DOMAIN}/authorize`);
+  authUrl.searchParams.set('client_id', CLIENT_ID);
+  authUrl.searchParams.set('response_type', 'code');
+  authUrl.searchParams.set('redirect_uri', REDIRECT_URI);
+  authUrl.searchParams.set('scope', 'openid profile email');
+  authUrl.searchParams.set('audience', audience);
+  authUrl.searchParams.set('prompt', 'none'); // Silent authentication
+
+  const iframe = document.createElement('iframe');
+  iframe.src = authUrl.toString();
+  iframe.style.display = 'none';
+  document.body.appendChild(iframe);
+
+  await new Promise((resolve, reject) => {
+    iframe.onload = () => resolve();
+    iframe.onerror = () => reject(new Error('Silent authentication failed'));
+  });
+
+  document.body.removeChild(iframe);
+  console.log('Silent authentication successful.');
+}
+
+// Handle Redirects
+async function handleRedirect() {
+  const urlParams = new URLSearchParams(window.location.search);
+  const authCode = urlParams.get('code');
+  const from = urlParams.get('from');
+
+  if (authCode) {
+    await exchangeCodeForToken(authCode);
+  } else if (from) {
+    await redirectToAuth0(from);
+  } else {
+    await silentAuth();
+  }
+}
 
 handleRedirect();
