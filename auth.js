@@ -35,6 +35,7 @@ async function exchangeCodeForToken(authCode) {
   const data = await response.json();
   window.accessToken = data.access_token;
 
+
   history.replaceState({}, document.title, window.location.pathname);
 
   await fetchUserInfo();
@@ -42,7 +43,8 @@ async function exchangeCodeForToken(authCode) {
 
 async function fetchUserInfo() {
   if (!window.accessToken) {
-    console.warn('No access token available.');
+    console.warn('No access token available, triggering silent authentication.');
+    await silentAuth();
     return;
   }
 
@@ -66,27 +68,44 @@ async function fetchUserInfo() {
 }
 
 async function silentAuth() {
-  const authUrl = new URL(`https://${AUTH0_DOMAIN}/authorize`);
-  authUrl.searchParams.set('client_id', CLIENT_ID);
-  authUrl.searchParams.set('response_type', 'code');
-  authUrl.searchParams.set('redirect_uri', REDIRECT_URI);
-  authUrl.searchParams.set('scope', 'openid profile email');
-  authUrl.searchParams.set('audience', audience);
-  authUrl.searchParams.set('prompt', 'none');
+  return new Promise((resolve, reject) => {
+    const authUrl = new URL(`https://${AUTH0_DOMAIN}/authorize`);
+    authUrl.searchParams.set('client_id', CLIENT_ID);
+    authUrl.searchParams.set('response_type', 'code');
+    authUrl.searchParams.set('redirect_uri', REDIRECT_URI);
+    authUrl.searchParams.set('scope', 'openid profile email');
+    authUrl.searchParams.set('audience', audience);
+    authUrl.searchParams.set('prompt', 'none');
 
-  const iframe = document.createElement('iframe');
-  iframe.src = authUrl.toString();
-  iframe.style.display = 'none';
-  document.body.appendChild(iframe);
+    const iframe = document.createElement('iframe');
+    iframe.src = authUrl.toString();
+    iframe.style.display = 'none';
+    document.body.appendChild(iframe);
 
-  await new Promise((resolve, reject) => {
-    iframe.onload = () => resolve();
-    iframe.onerror = () => reject(new Error('Silent authentication failed'));
+    const handleMessage = async (event) => {
+      if (event.origin !== `https://${AUTH0_DOMAIN}`) return;
+
+      const authCode = new URL(event.data).searchParams.get('code');
+      if (authCode) {
+        window.removeEventListener('message', handleMessage);
+        document.body.removeChild(iframe);
+        console.log('Silent auth successful, exchanging code for token...');
+        await exchangeCodeForToken(authCode);
+        resolve();
+      } else {
+        console.error('Silent auth failed: No code received');
+        reject(new Error('Silent authentication failed'));
+      }
+    };
+
+    window.addEventListener('message', handleMessage);
+
+    setTimeout(() => {
+      window.removeEventListener('message', handleMessage);
+      document.body.removeChild(iframe);
+      reject(new Error('Silent authentication timed out'));
+    }, 5000);
   });
-
-  document.body.removeChild(iframe);
-  console.log('Silent authentication successful.');
-  await fetchUserInfo();
 }
 
 function redirectToLogin() {
