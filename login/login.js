@@ -25,6 +25,14 @@ function showCookiesDisabledMessage() {
   body.style.fontFamily = 'Arial, sans-serif';
 }
 
+function getCookie(name) {
+  const matches = document.cookie.match(new RegExp(
+    `(?:^|; )${name.replace(/([.$?*|{}()\[\]\\/\+^])/g, '\\$1')}=([^;]*)`
+  ));
+  return matches ? decodeURIComponent(matches[1]) : undefined;
+}
+
+
 
 function logoutUser() {
 
@@ -103,6 +111,13 @@ function setCookie(name, value, days) {
   document.cookie = `${name}=${value}; expires=${expires.toUTCString()}; path=/; domain=.${domain}; Secure; SameSite=None`;
 }
 
+function setLocalhostCookie(name, value, days) {
+  const expires = new Date();
+  expires.setTime(expires.getTime() + days * 24 * 60 * 60 * 1000);
+  document.cookie = `${name}=${value}; expires=${expires.toUTCString()}; path=/; Secure; SameSite=None; domain=localhost`;
+}
+
+
 function deleteCookie(name) {
   setCookie(name, '', -1);
 }
@@ -134,6 +149,13 @@ async function handleRedirect() {
       const storedFrom = localStorage.getItem(FROM_KEY);
       if (storedFrom) {
         localStorage.removeItem(FROM_KEY);
+
+        if (storedFrom.includes('localhost:')) {
+          setLocalhostCookie('auth0.codeworks.access_token', getCookie('auth0.codeworks.access_token'), 1);
+          setLocalhostCookie('auth0.codeworks.is.authenticated', getCookie('auth0.codeworks.is.authenticated'), 1);
+          setLocalhostCookie('auth0.codeworks.refresh_token', getCookie('auth0.codeworks.refresh_token'), 1);
+        }
+
         window.location.href = storedFrom.startsWith('http') ? storedFrom : `https://course.codeworksacademy.com/${storedFrom}`;
       } else {
         window.location.href = '/';
