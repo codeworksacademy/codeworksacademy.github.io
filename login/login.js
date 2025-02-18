@@ -50,7 +50,7 @@ async function redirectToAuth0(from) {
   loginUrl.searchParams.set('client_id', CLIENT_ID);
   loginUrl.searchParams.set('response_type', 'code');
   loginUrl.searchParams.set('redirect_uri', REDIRECT_URI);
-  loginUrl.searchParams.set('scope', 'openid profile email');
+  loginUrl.searchParams.set('scope', 'openid profile email  offline_access');
   loginUrl.searchParams.set('code_challenge', codeChallenge);
   loginUrl.searchParams.set('code_challenge_method', 'S256');
   loginUrl.searchParams.set('audience', audience);
@@ -92,6 +92,7 @@ async function exchangeCodeForToken(authCode) {
 
   setCookie(`auth0.${CLIENT_ID}.access_token`, data.access_token, data.expires_in);
   setCookie(`auth0.${CLIENT_ID}.is.authenticated`, 'true', data.expires_in);
+  setCookie(`auth0.${CLIENT_ID}.refresh_token`, data.refresh_token, 30);
 
   return data;
 }

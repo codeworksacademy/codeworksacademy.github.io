@@ -37,6 +37,7 @@ async function exchangeCodeForToken(authCode) {
 
   setCookie(`auth0.${CLIENT_ID}.access_token`, data.access_token, data.expires_in);
   setCookie(`auth0.${CLIENT_ID}.is.authenticated`, 'true', data.expires_in);
+  setCookie(`auth0.${CLIENT_ID}.refresh_token`, data.refresh_token, 30)
 
   return data;
 }
