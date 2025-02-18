@@ -7,6 +7,8 @@ const LOGOUT_REDIRECT = IS_DEV ? location.origin : 'https://codeworksacademy.com
 const domain = IS_DEV ? window.location.hostname : 'codeworksacademy.com';
 const FROM_KEY = 'from';
 
+const BASE_COOKIE = `auth0.${CLIENT_ID}`;
+
 function checkCookies() {
   document.cookie = 'test_cookie=1';
   const cookiesEnabled = document.cookie.includes('test_cookie');
@@ -39,8 +41,8 @@ function logoutUser() {
   localStorage.removeItem(FROM_KEY);
   localStorage.removeItem('code_verifier');
 
-  deleteCookie(`auth0.${CLIENT_ID}.access_token`);
-  deleteCookie(`auth0.${CLIENT_ID}.is.authenticated`);
+  deleteCookie(`${BASE_COOKIE}.access_token`);
+  deleteCookie(`${BASE_COOKIE}.is.authenticated`);
 
   const logoutUrl = new URL(`https://${AUTH0_DOMAIN}/v2/logout`);
   logoutUrl.searchParams.set('client_id', CLIENT_ID);
@@ -98,9 +100,9 @@ async function exchangeCodeForToken(authCode) {
 
   const data = await response.json();
 
-  setCookie(`auth0.${CLIENT_ID}.access_token`, data.access_token, data.expires_in);
-  setCookie(`auth0.${CLIENT_ID}.is.authenticated`, 'true', data.expires_in);
-  setCookie(`auth0.${CLIENT_ID}.refresh_token`, data.refresh_token, 30);
+  setCookie(`${BASE_COOKIE}.access_token`, data.access_token, data.expires_in);
+  setCookie(`${BASE_COOKIE}.is.authenticated`, 'true', data.expires_in);
+  setCookie(`${BASE_COOKIE}.refresh_token`, data.refresh_token, 30);
 
   return data;
 }
@@ -151,9 +153,9 @@ async function handleRedirect() {
         localStorage.removeItem(FROM_KEY);
 
         if (storedFrom.includes('localhost:')) {
-          setLocalhostCookie('auth0.codeworks.access_token', getCookie('auth0.codeworks.access_token'), 1);
-          setLocalhostCookie('auth0.codeworks.is.authenticated', getCookie('auth0.codeworks.is.authenticated'), 1);
-          setLocalhostCookie('auth0.codeworks.refresh_token', getCookie('auth0.codeworks.refresh_token'), 1);
+          setLocalhostCookie(BASE_COOKIE + '.access_token', getCookie(BASE_COOKIE + '.access_token'), 1);
+          setLocalhostCookie(BASE_COOKIE + '.is.authenticated', getCookie(BASE_COOKIE + '.is.authenticated'), 1);
+          setLocalhostCookie(BASE_COOKIE + '.refresh_token', getCookie(BASE_COOKIE + '.refresh_token'), 1);
         }
 
         window.location.href = storedFrom.startsWith('http') ? storedFrom : `https://course.codeworksacademy.com/${storedFrom}`;
