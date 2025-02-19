@@ -1,19 +1,19 @@
 const AUTH0_DOMAIN = 'codeworksacademy.auth0.com';
 const CLIENT_ID = 'Pr738Hn5ZZhYYahOhTukx3phzlIPGCfl';
 const audience = 'https://codeworksacademy.com';
-const LOGIN_URL = location.origin.includes('localhost:') ? window.location.origin + '/login' : 'https://codeworksacademy.com/login';
+const LOGIN_URL = 'https://codeworksacademy.com/login';
 const REDIRECT_URI = 'https://codeworksacademy.com';
 
-
+// Holds access token in memory
 window.accessToken = null;
 
-
+// Utility function to get auth code from URL
 function getAuthCode() {
   const urlParams = new URLSearchParams(window.location.search);
   return urlParams.get('code');
 }
 
-
+// ✅ Ensure PKCE code verifier is stored before redirection
 async function storeCodeVerifier() {
   if (!localStorage.getItem('code_verifier')) {
     const codeVerifier = generateRandomString();
@@ -23,11 +23,11 @@ async function storeCodeVerifier() {
   }
 }
 
-
+// ✅ Exchange Auth Code for an Access Token
 async function exchangeCodeForToken(authCode) {
   const codeVerifier = localStorage.getItem('code_verifier');
 
-
+  // 🚨 Fix: If code_verifier is missing, force a login flow
   if (!codeVerifier) {
     console.warn('Code verifier missing, redirecting to login...');
     localStorage.removeItem('code_verifier');
@@ -43,20 +43,22 @@ async function exchangeCodeForToken(authCode) {
       grant_type: 'authorization_code',
       client_id: CLIENT_ID,
       code: authCode,
-      redirect_uri: REDIRECT_URI,
+      redirect_uri: REDIRECT_URI, // ✅ Must match the initial request
       code_verifier: codeVerifier,
       audience,
     }),
   });
 
   if (!response.ok) {
-    throw new Error(`Failed to exchange code: ${await response.text()}`);
+    console.error('Failed to exchange code:', await response.text());
+    redirectToLogin();
+    return;
   }
 
   const data = await response.json();
-  window.accessToken = data.access_token;
+  window.accessToken = data.access_token; // Store in-memory only
 
-
+  // ✅ Remove auth code and PKCE params from URL after successful login
   history.replaceState({}, document.title, window.location.pathname);
   localStorage.removeItem('code_verifier');
   localStorage.removeItem('code_challenge');
@@ -64,7 +66,7 @@ async function exchangeCodeForToken(authCode) {
   await fetchUserInfo();
 }
 
-
+// ✅ Fetch User Info (Waits for Access Token)
 async function fetchUserInfo() {
   if (!window.accessToken) {
     console.warn('No access token available, triggering silent authentication.');
@@ -91,7 +93,7 @@ async function fetchUserInfo() {
   }
 }
 
-
+// ✅ Silent Authentication (Handles Token Refresh & Expiry)
 async function silentAuth() {
   return new Promise((resolve, reject) => {
     const iframe = document.createElement('iframe');
@@ -101,34 +103,37 @@ async function silentAuth() {
     const authUrl = new URL(`https://${AUTH0_DOMAIN}/authorize`);
     authUrl.searchParams.set('client_id', CLIENT_ID);
     authUrl.searchParams.set('response_type', 'code');
-    authUrl.searchParams.set('redirect_uri', REDIRECT_URI); 
+    authUrl.searchParams.set('redirect_uri', REDIRECT_URI); // Root domain
     authUrl.searchParams.set('scope', 'openid profile email');
     authUrl.searchParams.set('audience', audience);
-    authUrl.searchParams.set('prompt', 'none'); 
+    authUrl.searchParams.set('prompt', 'none');
 
     iframe.src = authUrl.toString();
 
-    // ✅ Periodically check the iframe for an auth code
-    const checkIframe = setInterval(() => {
+    // ✅ Wait for iframe to redirect back to us (Auth0 will do this)
+    iframe.onload = async () => {
       try {
         const iframeUrl = new URL(iframe.contentWindow.location.href);
         const authCode = iframeUrl.searchParams.get('code');
 
         if (authCode) {
           console.log('✅ Silent auth code received:', authCode);
-          clearInterval(checkIframe);
           document.body.removeChild(iframe);
-          exchangeCodeForToken(authCode).then(resolve).catch(reject);
+          await exchangeCodeForToken(authCode);
+          resolve();
+        } else {
+          throw new Error('No auth code received in iframe.');
         }
       } catch (error) {
-        // Ignore CORS-related errors while iframe is loading
+        // Ignore CORS-related errors until redirected back
       }
-    }, 500);
+    };
 
     // ⏳ Timeout after 5 seconds
     setTimeout(() => {
-      clearInterval(checkIframe);
-      document.body.removeChild(iframe);
+      if (document.body.contains(iframe)) {
+        document.body.removeChild(iframe);
+      }
       console.warn('⏳ Silent authentication timed out, redirecting to login...');
       redirectToLogin();
       reject(new Error('Silent authentication timed out'));
@@ -136,23 +141,22 @@ async function silentAuth() {
   });
 }
 
-
-
+// ✅ Redirect to Login Page if Authentication Fails
 function redirectToLogin() {
   console.warn('Redirecting user to login...');
-  // window.location.href = `${LOGIN_URL}`;
+  window.location.href = `${LOGIN_URL}`;
 }
 
-
+// ✅ Update Navbar UI Based on Auth Status
 function updateNavbar(userInfo) {
   console.log('Updating navbar with user info:', userInfo);
   document.getElementById('login').style.display = 'none';
   document.getElementById('logout').style.display = 'block';
 }
 
-
+// ✅ Main Authentication Check
 async function checkLogin() {
-  await storeCodeVerifier();
+  await storeCodeVerifier(); // Ensure PKCE verifier exists
   const authCode = getAuthCode();
 
   if (authCode) {
@@ -162,7 +166,7 @@ async function checkLogin() {
   }
 }
 
-
+// ✅ Utility: Generate PKCE Code Verifier & Challenge
 function generateRandomString(length = 43) {
   const array = new Uint8Array(length);
   window.crypto.getRandomValues(array);
@@ -179,5 +183,5 @@ async function generateCodeChallenge(verifier) {
     .replace(/=+$/, '');
 }
 
-
+// ✅ Run the login check
 checkLogin();
