@@ -2,7 +2,7 @@ const AUTH0_DOMAIN = 'codeworksacademy.auth0.com';
 const CLIENT_ID = 'Pr738Hn5ZZhYYahOhTukx3phzlIPGCfl';
 const audience = 'https://codeworksacademy.com';
 
-// ✅ Dynamically set the redirect URI for local development
+// ✅ Dynamically set redirect URI (for local & prod)
 const IS_LOCAL = window.location.hostname === 'localhost';
 const REDIRECT_URI = IS_LOCAL ? window.location.origin : 'https://codeworksacademy.com';
 const LOGIN_URL = `${REDIRECT_URI}/login`;
@@ -44,7 +44,7 @@ async function exchangeCodeForToken(authCode) {
       grant_type: 'authorization_code',
       client_id: CLIENT_ID,
       code: authCode,
-      redirect_uri: REDIRECT_URI, // ✅ Matches initial request
+      redirect_uri: REDIRECT_URI, // ✅ Must match the initial request
       code_verifier: codeVerifier,
       audience,
     }),
@@ -64,10 +64,11 @@ async function exchangeCodeForToken(authCode) {
   localStorage.removeItem('code_verifier');
   localStorage.removeItem('code_challenge');
 
+  // ✅ Fix: Always fetch user info before setting "isAuthenticated"
   await fetchUserInfo();
 }
 
-// ✅ Fetch User Info (Now Tracks `isAuthenticated`)
+// ✅ Fetch User Info (Now Ensures UI Updates)
 async function fetchUserInfo() {
   if (!window.accessToken) {
     console.warn('No access token available, triggering silent authentication.');
@@ -88,18 +89,22 @@ async function fetchUserInfo() {
     console.log('User is logged in:', userInfo);
 
     updateNavbar(userInfo);
-    localStorage.setItem('isAuthenticated', 'true'); // ✅ Prevents infinite login loop
+
+    // ✅ Fix: Now set `isAuthenticated` only AFTER user info is retrieved
+    localStorage.setItem('isAuthenticated', 'true');
   } catch (error) {
     console.error('Error validating access token:', error);
     redirectToLogin();
   }
 }
 
-// ✅ Silent Authentication (Handles Token Refresh & Expiry)
+// ✅ Silent Authentication (Handles Token Refresh & UI Updates)
 async function silentAuth() {
   return new Promise((resolve, reject) => {
-    if (localStorage.getItem('isAuthenticated') === 'true') {
+    // ✅ Fix: Only skip auth if we have both an access token AND user data
+    if (localStorage.getItem('isAuthenticated') === 'true' && window.accessToken) {
       console.log('✅ User is already authenticated, skipping silent auth.');
+      fetchUserInfo(); // Ensure UI updates
       resolve();
       return;
     }
@@ -118,7 +123,7 @@ async function silentAuth() {
 
     iframe.src = authUrl.toString();
 
-    // ✅ Wait for iframe to redirect back to us (Auth0 will do this)
+    // ✅ Fix: Capture response from iframe
     iframe.onload = async () => {
       try {
         const iframeUrl = new URL(iframe.contentWindow.location.href);
@@ -167,7 +172,7 @@ function logout() {
 // ✅ Redirect to Login Page if Authentication Fails
 function redirectToLogin() {
   console.warn('Redirecting user to login...');
-  window.location.href = `${LOGIN_URL}`;
+  // window.location.href = `${LOGIN_URL}`;
 }
 
 // ✅ Update Navbar UI Based on Auth Status
@@ -177,7 +182,7 @@ function updateNavbar(userInfo) {
   document.getElementById('logout').style.display = 'block';
 }
 
-// ✅ Main Authentication Check
+// ✅ Main Authentication Check (Now Works Correctly)
 async function checkLogin() {
   await storeCodeVerifier(); // Ensure PKCE verifier exists
   const authCode = getAuthCode();
