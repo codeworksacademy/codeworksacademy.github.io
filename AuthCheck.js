@@ -94,46 +94,48 @@ async function fetchUserInfo() {
 
 async function silentAuth() {
   return new Promise((resolve, reject) => {
-    const authUrl = new URL(`https://${AUTH0_DOMAIN}/authorize`);
-    authUrl.searchParams.set('client_id', CLIENT_ID);
-    authUrl.searchParams.set('response_type', 'code');
-    authUrl.searchParams.set('redirect_uri', REDIRECT_URI);
-    authUrl.searchParams.set('scope', 'openid profile email');
-    authUrl.searchParams.set('audience', audience);
-    authUrl.searchParams.set('prompt', 'none');
-
     const iframe = document.createElement('iframe');
-    iframe.src = authUrl.toString();
     iframe.style.display = 'none';
     document.body.appendChild(iframe);
 
-    const handleMessage = async (event) => {
-      if (event.origin !== `https://${AUTH0_DOMAIN}`) return;
+    const authUrl = new URL(`https://${AUTH0_DOMAIN}/authorize`);
+    authUrl.searchParams.set('client_id', CLIENT_ID);
+    authUrl.searchParams.set('response_type', 'code');
+    authUrl.searchParams.set('redirect_uri', REDIRECT_URI); 
+    authUrl.searchParams.set('scope', 'openid profile email');
+    authUrl.searchParams.set('audience', audience);
+    authUrl.searchParams.set('prompt', 'none'); 
 
-      const authCode = new URL(event.data).searchParams.get('code');
-      if (authCode) {
-        window.removeEventListener('message', handleMessage);
-        document.body.removeChild(iframe);
-        console.log('Silent auth successful, exchanging code for token...');
-        await exchangeCodeForToken(authCode);
-        resolve();
-      } else {
-        console.error('Silent auth failed: No code received');
-        reject(new Error('Silent authentication failed'));
+    iframe.src = authUrl.toString();
+
+    // ✅ Periodically check the iframe for an auth code
+    const checkIframe = setInterval(() => {
+      try {
+        const iframeUrl = new URL(iframe.contentWindow.location.href);
+        const authCode = iframeUrl.searchParams.get('code');
+
+        if (authCode) {
+          console.log('✅ Silent auth code received:', authCode);
+          clearInterval(checkIframe);
+          document.body.removeChild(iframe);
+          exchangeCodeForToken(authCode).then(resolve).catch(reject);
+        }
+      } catch (error) {
+        // Ignore CORS-related errors while iframe is loading
       }
-    };
+    }, 500);
 
-    window.addEventListener('message', handleMessage);
-
+    // ⏳ Timeout after 5 seconds
     setTimeout(() => {
-      window.removeEventListener('message', handleMessage);
+      clearInterval(checkIframe);
       document.body.removeChild(iframe);
-      console.warn('Silent authentication timed out, redirecting to login...');
+      console.warn('⏳ Silent authentication timed out, redirecting to login...');
       redirectToLogin();
       reject(new Error('Silent authentication timed out'));
     }, 5000);
   });
 }
+
 
 
 function redirectToLogin() {
