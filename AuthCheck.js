@@ -6,7 +6,7 @@ function AuthCheck(from) {
   const REDIRECT_URI = IS_LOCAL ? window.location.origin : 'https://codeworksacademy.com/login';
   const FROM_KEY = 'auth_from';
 
-  from = from || getUrlParam('from') || localStorage.getItem(FROM_KEY) || '/';
+  from = from || getUrlParam('from') || localStorage.getItem(FROM_KEY) || getCookie(FROM_KEY);
 
 
   function getUrlParam(param) {
@@ -44,9 +44,9 @@ function AuthCheck(from) {
     const data = await response.json();
     setCookie('auth_access_token', data.access_token, data.expires_in);
 
-    const returnTo = localStorage.getItem('auth_from');
+    const returnTo = localStorage.getItem(FROM_KEY);
     if (!returnTo) return
-    localStorage.removeItem('auth_from');
+    localStorage.removeItem(FROM_KEY);
     window.location.href = returnTo;
   }
 
