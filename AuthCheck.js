@@ -53,7 +53,7 @@ function AuthCheck(from) {
 
   function setCookie(name, value, seconds) {
     const expires = new Date(Date.now() + seconds * 1000).toUTCString();
-    document.cookie = `${name}=${value}; expires=${expires}; path=/; Secure; SameSite=None`;
+    document.cookie = `${name}=${value}; expires=${expires}; path=/; domain=.codeworksacademy.com; Secure; SameSite=None`;
   }
 
 
