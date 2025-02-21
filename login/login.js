@@ -1,7 +1,8 @@
 const AUTH0_DOMAIN = 'codeworksacademy.auth0.com';
 const CLIENT_ID = 'Pr738Hn5ZZhYYahOhTukx3phzlIPGCfl';
 const audience = 'https://codeworksacademy.com';
-const REDIRECT_URI = 'https://codeworksacademy.com/login';
+const IS_LOCAL = window.location.hostname === 'localhost';
+const REDIRECT_URI = IS_LOCAL ? window.location.origin : 'https://codeworksacademy.com/login';
 const FROM_KEY = 'auth_from';
 
 function generateRandomString(length = 43) {
@@ -43,7 +44,7 @@ async function redirectToAuth0(from) {
 }
 
 async function exchangeCodeForToken(authCode) {
-  const codeVerifier = localStorage.getItem('code_verifier') || getCookie('code_verifier');
+  const codeVerifier = getCookie('code_verifier') || localStorage.getItem('code_verifier');
   if (!codeVerifier) throw new Error('Code verifier missing');
 
   const response = await fetch(`https://${AUTH0_DOMAIN}/oauth/token`, {
@@ -59,55 +60,32 @@ async function exchangeCodeForToken(authCode) {
     }),
   });
 
+  deleteCookie('code_verifier');
+  localStorage.removeItem('code_verifier');
+
   if (!response.ok) {
     throw new Error(`Failed to exchange code: ${await response.text()}`);
   }
 
   const data = await response.json();
   window.accessToken = data.access_token;
+  setCookie('auth_access_token', data.access_token, data.expires_in);
 
   const from = localStorage.getItem(FROM_KEY);
   localStorage.removeItem(FROM_KEY);
   window.location.href = from ? from : '/';
 }
 
-async function silentAuth() {
-  const authUrl = new URL(`https://${AUTH0_DOMAIN}/authorize`);
-  authUrl.searchParams.set('client_id', CLIENT_ID);
-  authUrl.searchParams.set('response_type', 'code');
-  authUrl.searchParams.set('redirect_uri', REDIRECT_URI);
-  authUrl.searchParams.set('scope', 'openid profile email');
-  authUrl.searchParams.set('audience', audience);
-  authUrl.searchParams.set('prompt', 'none');
-
-  const iframe = document.createElement('iframe');
-  iframe.src = authUrl.toString();
-  iframe.style.display = 'none';
-  document.body.appendChild(iframe);
-
-  await new Promise((resolve, reject) => {
-    iframe.onload = () => resolve();
-    iframe.onerror = () => reject(new Error('Silent authentication failed'));
-  });
-
-  document.body.removeChild(iframe);
-  console.log('Silent authentication successful.');
-  window.location.href = '/';
-}
-
-// Handle Redirects
 async function handleRedirect() {
   const urlParams = new URLSearchParams(window.location.search);
   const authCode = urlParams.get('code');
   const from = urlParams.get('from');
 
   if (authCode) {
-    await exchangeCodeForToken(authCode);
-  } else if (from) {
-    await redirectToAuth0(from);
-  } else {
-    await silentAuth();
+    return await exchangeCodeForToken(authCode);
   }
+
+  await redirectToAuth0(from);
 }
 
 function getCookie(name) {
