@@ -24,6 +24,7 @@ async function redirectToAuth0(from) {
   const codeVerifier = generateRandomString();
   const codeChallenge = await generateCodeChallenge(codeVerifier);
   localStorage.setItem('code_verifier', codeVerifier);
+  setCookie('code_verifier', codeVerifier, 1);
 
   const loginUrl = new URL(`https://${AUTH0_DOMAIN}/authorize`);
   loginUrl.searchParams.set('client_id', CLIENT_ID);
@@ -42,7 +43,7 @@ async function redirectToAuth0(from) {
 }
 
 async function exchangeCodeForToken(authCode) {
-  const codeVerifier = localStorage.getItem('code_verifier');
+  const codeVerifier = localStorage.getItem('code_verifier') || getCookie('code_verifier');
   if (!codeVerifier) throw new Error('Code verifier missing');
 
   const response = await fetch(`https://${AUTH0_DOMAIN}/oauth/token`, {
@@ -107,6 +108,20 @@ async function handleRedirect() {
   } else {
     await silentAuth();
   }
+}
+
+function getCookie(name) {
+  const match = document.cookie.match(`(^|;)\\s*${name}\\s*=\\s*([^;]+)`);
+  return match ? decodeURIComponent(match[2]) : null;
+}
+
+function setCookie(name, value, seconds) {
+  const expires = new Date(Date.now() + seconds * 1000).toUTCString();
+  document.cookie = `${name}=${value}; expires=${expires}; path=/; domain=.codeworksacademy.com; Secure; SameSite=None`;
+}
+
+function deleteCookie(name) {
+  document.cookie = `${name}=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/; domain=.codeworksacademy.com; Secure; SameSite=None`;
 }
 
 handleRedirect();
